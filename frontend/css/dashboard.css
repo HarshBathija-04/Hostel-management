@@ -1,0 +1,488 @@
+/**
+ * Hostel Room Allotment System - Dashboard Styles
+ * Styles for dashboard and admin panel layouts
+ */
+
+/* =====================================================
+   Sidebar
+   ===================================================== */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: white;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar.collapsed {
+    width: var(--sidebar-collapsed-width);
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.sidebar-brand i {
+    font-size: 1.5rem;
+}
+
+.sidebar.collapsed .sidebar-brand span {
+    display: none;
+}
+
+/* Sidebar User */
+.sidebar-user {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e3e6f0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.user-avatar i {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.user-info h6 {
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.user-info .badge {
+    font-size: 0.7rem;
+}
+
+.sidebar.collapsed .user-info {
+    display: none;
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+    flex: 1;
+    padding: 1rem 0;
+    overflow-y: auto;
+}
+
+.sidebar-nav .nav-item {
+    margin: 0.25rem 1rem;
+}
+
+.sidebar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem !important;
+    color: #858796;
+    border-radius: 0.5rem;
+    transition: var(--transition);
+}
+
+.sidebar-nav .nav-link i {
+    font-size: 1.1rem;
+    width: 1.5rem;
+    text-align: center;
+}
+
+.sidebar-nav .nav-link:hover {
+    background-color: #f8f9fc;
+    color: var(--primary-color);
+}
+
+.sidebar-nav .nav-link.active {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: white;
+}
+
+.sidebar.collapsed .sidebar-nav .nav-link span {
+    display: none;
+}
+
+.sidebar.collapsed .sidebar-nav .nav-item {
+    margin: 0.25rem 0.5rem;
+}
+
+.sidebar.collapsed .sidebar-nav .nav-link {
+    justify-content: center;
+    padding: 0.75rem !important;
+}
+
+.sidebar.collapsed .sidebar-nav .nav-link i {
+    width: auto;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid #e3e6f0;
+}
+
+.sidebar-footer .nav-link {
+    color: #e74a3b;
+}
+
+.sidebar-footer .nav-link:hover {
+    background-color: #fdf3f2;
+}
+
+/* =====================================================
+   Main Content
+   ===================================================== */
+.main-content {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: var(--transition);
+}
+
+.main-content.expanded {
+    margin-left: var(--sidebar-collapsed-width);
+}
+
+/* =====================================================
+   Top Navbar
+   ===================================================== */
+.navbar {
+    height: var(--topbar-height);
+    padding: 0 1.5rem;
+}
+
+.sidebar-toggle {
+    padding: 0.4rem 0.75rem;
+}
+
+.user-avatar-sm {
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-avatar-sm i {
+    font-size: 1rem;
+    color: white;
+}
+
+/* =====================================================
+   Content Wrapper
+   ===================================================== */
+.content-wrapper {
+    flex: 1;
+    padding: 1.5rem;
+    background-color: #f8f9fc;
+}
+
+/* =====================================================
+   Page Header
+   ===================================================== */
+.page-header {
+    margin-bottom: 1.5rem;
+}
+
+.page-header h2 {
+    font-weight: 700;
+    color: #2e3038;
+    margin-bottom: 0.5rem;
+}
+
+.page-header h2 i {
+    color: var(--primary-color);
+    margin-right: 0.5rem;
+}
+
+.breadcrumb {
+    background: none;
+    padding: 0;
+    margin: 0;
+}
+
+.breadcrumb-item a {
+    color: var(--primary-color);
+}
+
+.breadcrumb-item.active {
+    color: #858796;
+}
+
+/* =====================================================
+   Stat Cards (Dashboard)
+   ===================================================== */
+.stat-card {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.stat-card.bg-primary::before { background: var(--primary-color); }
+.stat-card.bg-success::before { background: var(--success-color); }
+.stat-card.bg-info::before { background: var(--info-color); }
+.stat-card.bg-warning::before { background: var(--warning-color); }
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-icon i {
+    font-size: 1.75rem;
+    color: white;
+}
+
+.stat-info h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.25rem;
+}
+
+.stat-info p {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0;
+    font-size: 0.9rem;
+}
+
+.stat-link {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.stat-link:hover {
+    color: white;
+}
+
+/* =====================================================
+   Quick Action Cards
+   ===================================================== */
+.quick-action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+    text-align: center;
+    color: #5a5c69;
+    border: 2px solid transparent;
+}
+
+.quick-action-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.quick-action-card i {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    color: var(--primary-color);
+}
+
+.quick-action-card span {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+/* =====================================================
+   Summary Cards
+   ===================================================== */
+.summary-card {
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    text-align: center;
+}
+
+.summary-card h4 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--dark-color);
+}
+
+.summary-card p {
+    color: var(--secondary-color);
+    margin-bottom: 0;
+    font-size: 0.9rem;
+}
+
+/* =====================================================
+   Room Info
+   ===================================================== */
+.room-info {
+    padding: 1rem 0;
+}
+
+.room-info p {
+    margin-bottom: 0.75rem;
+    color: #5a5c69;
+}
+
+.room-info p strong {
+    color: #2e3038;
+    display: inline-block;
+    width: 120px;
+}
+
+.room-info p i {
+    color: var(--primary-color);
+    margin-right: 0.5rem;
+    width: 1.2rem;
+}
+
+/* =====================================================
+   Footer
+   ===================================================== */
+.footer {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e3e6f0;
+    font-size: 0.85rem;
+    color: #858796;
+}
+
+.footer a {
+    color: #858796;
+}
+
+.footer a:hover {
+    color: var(--primary-color);
+}
+
+/* =====================================================
+   Responsive
+   ===================================================== */
+@media (max-width: 991.98px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .sidebar-toggle {
+        display: block;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .content-wrapper {
+        padding: 1rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .stat-icon i {
+        font-size: 1.5rem;
+    }
+    
+    .stat-info h3 {
+        font-size: 1.5rem;
+    }
+    
+    .quick-action-card {
+        padding: 1rem;
+    }
+}
+
+/* =====================================================
+   Animations
+   ===================================================== */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.sidebar-nav .nav-item {
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+.sidebar-nav .nav-item:nth-child(1) { animation-delay: 0.05s; }
+.sidebar-nav .nav-item:nth-child(2) { animation-delay: 0.1s; }
+.sidebar-nav .nav-item:nth-child(3) { animation-delay: 0.15s; }
+.sidebar-nav .nav-item:nth-child(4) { animation-delay: 0.2s; }
+.sidebar-nav .nav-item:nth-child(5) { animation-delay: 0.25s; }
+.sidebar-nav .nav-item:nth-child(6) { animation-delay: 0.3s; }
+.sidebar-nav .nav-item:nth-child(7) { animation-delay: 0.35s; }
+.sidebar-nav .nav-item:nth-child(8) { animation-delay: 0.4s; }

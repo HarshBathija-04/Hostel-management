@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Hostel Room Allotment System</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar admin-sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="../../index.html" class="sidebar-brand">
+                <i class="bi bi-building"></i>
+                <span>Hostel RMS</span>
+            </a>
+        </div>
+        
+        <div class="sidebar-user">
+            <div class="user-avatar admin-avatar">
+                <i class="bi bi-shield-person"></i>
+            </div>
+            <div class="user-info">
+                <h6 id="userName">Loading...</h6>
+                <span class="badge bg-dark" id="userRole">Admin</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="dashboard.html">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="students.html">
+                        <i class="bi bi-people"></i>
+                        <span>Students</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="applications.html">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span>Applications</span>
+                        <span class="badge bg-danger ms-auto" id="pendingAppBadge">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="allocations.html">
+                        <i class="bi bi-door-open"></i>
+                        <span>Allocations</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="rooms.html">
+                        <i class="bi bi-building"></i>
+                        <span>Rooms</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="blocks.html">
+                        <i class="bi bi-grid-3x3"></i>
+                        <span>Hostel Blocks</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="reports.html">
+                        <i class="bi bi-graph-up"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="settings.html">
+                        <i class="bi bi-gear"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <a href="#" class="nav-link" onclick="logout()">
+                <i class="bi bi-box-arrow-left"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+            <div class="container-fluid">
+                <button class="btn btn-sm btn-outline-dark sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                
+                <span class="navbar-brand ms-3 d-lg-none">Admin Dashboard</span>
+                
+                <div class="ms-auto d-flex align-items-center">
+                    <div class="dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="bi bi-bell"></i>
+                            <span class="badge bg-danger rounded-pill" id="notificationCount">0</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><a class="dropdown-item" href="applications.html">View pending applications</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="dropdown ms-3">
+                        <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+                            <div class="user-avatar-sm admin-avatar-sm">
+                                <i class="bi bi-shield-person"></i>
+                            </div>
+                            <span class="ms-2 d-none d-md-block" id="navUserName">Admin</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="settings.html"><i class="bi bi-gear"></i> Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Dashboard Content -->
+        <div class="content-wrapper">
+            <div class="container-fluid">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h2><i class="bi bi-speedometer2"></i> Admin Dashboard</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item active">Dashboard</li>
+                        </ol>
+                    </nav>
+                </div>
+                
+                <!-- Alert Container -->
+                <div id="alertContainer"></div>
+                
+                <!-- Stats Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat-card bg-primary text-white">
+                            <div class="stat-icon">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalStudents">0</h3>
+                                <p>Total Students</p>
+                            </div>
+                            <a href="students.html" class="stat-link">View All <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat-card bg-success text-white">
+                            <div class="stat-icon">
+                                <i class="bi bi-building"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalRooms">0</h3>
+                                <p>Total Rooms</p>
+                            </div>
+                            <a href="rooms.html" class="stat-link">Manage <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat-card bg-info text-white">
+                            <div class="stat-icon">
+                                <i class="bi bi-door-open"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="activeAllocations">0</h3>
+                                <p>Active Allocations</p>
+                            </div>
+                            <a href="allocations.html" class="stat-link">View <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat-card bg-warning text-white">
+                            <div class="stat-icon">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="pendingApplications">0</h3>
+                                <p>Pending Applications</p>
+                            </div>
+                            <a href="applications.html" class="stat-link">Process <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Charts Row -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Room Occupancy by Block</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="occupancyChart" height="250"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Room Status Distribution</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="roomStatusChart" height="250"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity Row -->
+                <div class="row g-4">
+                    <!-- Recent Applications -->
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> Recent Applications</h5>
+                                <a href="applications.html" class="btn btn-sm btn-primary">View All</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0" id="recentApplicationsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Student</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="4" class="text-center py-4">
+                                                    <div class="spinner-border text-primary" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Allocations -->
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="bi bi-door-open"></i> Recent Allocations</h5>
+                                <a href="allocations.html" class="btn btn-sm btn-primary">View All</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0" id="recentAllocationsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Student</th>
+                                                <th>Room</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="4" class="text-center py-4">
+                                                    <div class="spinner-border text-primary" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="row g-4 mt-2">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-3 col-sm-6">
+                                        <a href="applications.html" class="quick-action-card admin-quick-action">
+                                            <i class="bi bi-check-circle"></i>
+                                            <span>Process Applications</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6">
+                                        <a href="allocations.html?action=new" class="quick-action-card admin-quick-action">
+                                            <i class="bi bi-plus-circle"></i>
+                                            <span>New Allocation</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6">
+                                        <a href="rooms.html?action=add" class="quick-action-card admin-quick-action">
+                                            <i class="bi bi-building-add"></i>
+                                            <span>Add Room</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6">
+                                        <a href="reports.html" class="quick-action-card admin-quick-action">
+                                            <i class="bi bi-file-earmark-bar-graph"></i>
+                                            <span>Generate Report</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Room Summary -->
+                <div class="row g-4 mt-2">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-building"></i> Room Availability Summary</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-4" id="roomSummaryCards">
+                                    <div class="col-12 text-center py-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-0">&copy; 2024 Hostel Room Allotment System. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <a href="#">Privacy Policy</a>
+                        <span class="mx-2">|</span>
+                        <a href="#">Terms of Service</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="../../js/dashboard.js"></script>
+    <script>
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadDashboardData();
+        });
+        
+        // Check authentication
+        function checkAuth() {
+            const token = localStorage.getItem('accessToken');
+            const userType = localStorage.getItem('userType');
+            
+            if (!token || userType !== 'admin') {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Load user data
+            const adminData = JSON.parse(localStorage.getItem('adminData') || '{}');
+            document.getElementById('userName').textContent = adminData.full_name || adminData.username;
+            document.getElementById('navUserName').textContent = adminData.full_name || adminData.username;
+            document.getElementById('userRole').textContent = adminData.role === 'super_admin' ? 'Super Admin' : 'Admin';
+        }
+        
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                const token = localStorage.getItem('accessToken');
+                
+                const response = await fetch('http://localhost:5000/api/admin/dashboard', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateDashboardUI(data.data);
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+        
+        // Update dashboard UI
+        function updateDashboardUI(data) {
+            // Update stats
+            document.getElementById('totalStudents').textContent = data.statistics.totalStudents;
+            document.getElementById('totalRooms').textContent = data.statistics.totalRooms;
+            document.getElementById('activeAllocations').textContent = data.statistics.activeAllocations;
+            document.getElementById('pendingApplications').textContent = data.statistics.pendingApplications;
+            document.getElementById('pendingAppBadge').textContent = data.statistics.pendingApplications;
+            
+            // Update room summary
+            updateRoomSummary(data.roomSummary);
+            
+            // Update recent applications
+            updateRecentApplications(data.recentApplications);
+            
+            // Update recent allocations
+            updateRecentAllocations(data.recentAllocations);
+            
+            // Create charts
+            createOccupancyChart(data.occupancyByBlock);
+            createRoomStatusChart(data.roomSummary);
+        }
+        
+        // Update room summary cards
+        function updateRoomSummary(summary) {
+            const container = document.getElementById('roomSummaryCards');
+            container.innerHTML = `
+                <div class="col-md-3">
+                    <div class="summary-card bg-primary bg-opacity-10">
+                        <h4>${summary.total_capacity}</h4>
+                        <p>Total Beds</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-card bg-success bg-opacity-10">
+                        <h4>${summary.total_occupied}</h4>
+                        <p>Occupied Beds</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-card bg-info bg-opacity-10">
+                        <h4>${summary.total_available}</h4>
+                        <p>Available Beds</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-card bg-warning bg-opacity-10">
+                        <h4>${Math.round((summary.total_occupied / summary.total_capacity) * 100) || 0}%</h4>
+                        <p>Occupancy Rate</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Update recent applications table
+        function updateRecentApplications(applications) {
+            const tbody = document.querySelector('#recentApplicationsTable tbody');
+            
+            if (applications.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">No recent applications</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = applications.map(app => `
+                <tr>
+                    <td>
+                        <strong>${app.student_name}</strong><br>
+                        <small class="text-muted">${app.student_id}</small>
+                    </td>
+                    <td>${formatDate(app.application_date)}</td>
+                    <td><span class="badge bg-${getStatusColor(app.status)}">${app.status}</span></td>
+                    <td>
+                        <a href="applications.html?id=${app.id}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Update recent allocations table
+        function updateRecentAllocations(allocations) {
+            const tbody = document.querySelector('#recentAllocationsTable tbody');
+            
+            if (allocations.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">No recent allocations</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = allocations.map(alloc => `
+                <tr>
+                    <td>
+                        <strong>${alloc.student_name}</strong><br>
+                        <small class="text-muted">${alloc.student_id}</small>
+                    </td>
+                    <td>${alloc.block_code}-${alloc.room_number}</td>
+                    <td>${formatDate(alloc.allocation_date)}</td>
+                    <td><span class="badge bg-${getAllocationStatusColor(alloc.allocation_status)}">${alloc.allocation_status}</span></td>
+                </tr>
+            `).join('');
+        }
+        
+        // Create occupancy chart
+        function createOccupancyChart(occupancyData) {
+            const ctx = document.getElementById('occupancyChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: occupancyData.map(d => d.block_name),
+                    datasets: [{
+                        label: 'Occupancy Rate (%)',
+                        data: occupancyData.map(d => d.occupancy_rate || 0),
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Create room status chart
+        function createRoomStatusChart(summary) {
+            const ctx = document.getElementById('roomStatusChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Available', 'Full', 'Maintenance'],
+                    datasets: [{
+                        data: [summary.available_rooms, summary.full_rooms, summary.maintenance_rooms],
+                        backgroundColor: [
+                            'rgba(75, 192, 192, 0.5)',
+                            'rgba(255, 99, 132, 0.5)',
+                            'rgba(255, 206, 86, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(255, 206, 86, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+        
+        // Helper functions
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+        
+        function getStatusColor(status) {
+            const colors = {
+                'pending': 'warning',
+                'approved': 'success',
+                'rejected': 'danger',
+                'waitlisted': 'info',
+                'cancelled': 'secondary'
+            };
+            return colors[status] || 'secondary';
+        }
+        
+        function getAllocationStatusColor(status) {
+            const colors = {
+                'active': 'success',
+                'expired': 'secondary',
+                'terminated': 'danger',
+                'extended': 'info'
+            };
+            return colors[status] || 'secondary';
+        }
+        
+        // Logout function
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+        
+        // Sidebar toggle
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+            document.querySelector('.main-content').classList.toggle('expanded');
+        });
+    </script>
+</body>
+</html>

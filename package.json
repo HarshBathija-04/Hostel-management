@@ -1,0 +1,36 @@
+{
+  "name": "hostel-room-allotment-system",
+  "version": "1.0.0",
+  "description": "Hostel Room Allotment System - Complete web application for managing hostel room allocations",
+  "main": "backend/server.js",
+  "scripts": {
+    "install:backend": "cd backend && npm install",
+    "install:all": "npm run install:backend",
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "setup:db": "node scripts/setup-database.js",
+    "test": "cd backend && npm test",
+    "lint": "cd backend && npx eslint ."
+  },
+  "keywords": [
+    "hostel",
+    "room-allotment",
+    "student-management",
+    "express",
+    "mysql",
+    "bootstrap"
+  ],
+  "author": "Hostel Management Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/hostel-room-allotment-system.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/hostel-room-allotment-system/issues"
+  },
+  "homepage": "https://github.com/yourusername/hostel-room-allotment-system#readme"
+}

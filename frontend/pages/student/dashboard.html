@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Hostel Room Allotment System</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="../../index.html" class="sidebar-brand">
+                <i class="bi bi-building"></i>
+                <span>Hostel RMS</span>
+            </a>
+        </div>
+        
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                <i class="bi bi-person-circle"></i>
+            </div>
+            <div class="user-info">
+                <h6 id="userName">Loading...</h6>
+                <span class="badge bg-primary">Student</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="dashboard.html">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="profile.html">
+                        <i class="bi bi-person"></i>
+                        <span>My Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="apply.html">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span>Apply for Room</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="applications.html">
+                        <i class="bi bi-list-check"></i>
+                        <span>My Applications</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="room.html">
+                        <i class="bi bi-door-open"></i>
+                        <span>My Room</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="payments.html">
+                        <i class="bi bi-credit-card"></i>
+                        <span>Payments</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <a href="#" class="nav-link" onclick="logout()">
+                <i class="bi bi-box-arrow-left"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+            <div class="container-fluid">
+                <button class="btn btn-sm btn-outline-primary sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                
+                <span class="navbar-brand ms-3 d-lg-none">Student Dashboard</span>
+                
+                <div class="ms-auto d-flex align-items-center">
+                    <div class="dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="bi bi-bell"></i>
+                            <span class="badge bg-danger rounded-pill" id="notificationCount">0</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><a class="dropdown-item" href="#">No new notifications</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="dropdown ms-3">
+                        <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+                            <div class="user-avatar-sm">
+                                <i class="bi bi-person-circle"></i>
+                            </div>
+                            <span class="ms-2 d-none d-md-block" id="navUserName">Student</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="settings.html"><i class="bi bi-gear"></i> Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="logout()"><i class="bi bi-box-arrow-left"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Dashboard Content -->
+        <div class="content-wrapper">
+            <div class="container-fluid">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h2><i class="bi bi-speedometer2"></i> Student Dashboard</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item active">Dashboard</li>
+                        </ol>
+                    </nav>
+                </div>
+                
+                <!-- Alert Container -->
+                <div id="alertContainer"></div>
+                
+                <!-- Stats Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat-card bg-primary text-white">
+                            <div class="stat-icon">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="activeApplications">0</h3>
+                                <p>Active Applications</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat-card bg-success text-white">
+                            <div class="stat-icon">
+                                <i class="bi bi-door-open"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="roomStatus">No Room</h3>
+                                <p>Room Status</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat-card bg-info text-white">
+                            <div class="stat-icon">
+                                <i class="bi bi-credit-card"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="paymentStatus">-</h3>
+                                <p>Payment Status</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat-card bg-warning text-white">
+                            <div class="stat-icon">
+                                <i class="bi bi-calendar"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="daysRemaining">-</h3>
+                                <p>Days Remaining</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Content Row -->
+                <div class="row g-4">
+                    <!-- Current Room Allocation -->
+                    <div class="col-lg-6">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="bi bi-door-open"></i> Current Room Allocation</h5>
+                                <a href="room.html" class="btn btn-sm btn-primary">View Details</a>
+                            </div>
+                            <div class="card-body" id="roomAllocationCard">
+                                <div class="text-center py-5">
+                                    <i class="bi bi-house-x display-1 text-muted"></i>
+                                    <h5 class="mt-3 text-muted">No Active Room Allocation</h5>
+                                    <p class="text-muted">You don't have an active room allocation yet.</p>
+                                    <a href="apply.html" class="btn btn-primary">
+                                        <i class="bi bi-file-earmark-plus"></i> Apply for Room
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Application -->
+                    <div class="col-lg-6">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> Recent Application</h5>
+                                <a href="applications.html" class="btn btn-sm btn-primary">View All</a>
+                            </div>
+                            <div class="card-body" id="recentApplicationCard">
+                                <div class="text-center py-5">
+                                    <i class="bi bi-inbox display-1 text-muted"></i>
+                                    <h5 class="mt-3 text-muted">No Applications</h5>
+                                    <p class="text-muted">You haven't submitted any applications yet.</p>
+                                    <a href="apply.html" class="btn btn-primary">
+                                        <i class="bi bi-file-earmark-plus"></i> Apply Now
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="row g-4 mt-2">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-3 col-sm-6">
+                                        <a href="apply.html" class="quick-action-card">
+                                            <i class="bi bi-file-earmark-plus"></i>
+                                            <span>Apply for Room</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6">
+                                        <a href="profile.html" class="quick-action-card">
+                                            <i class="bi bi-person"></i>
+                                            <span>Update Profile</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6">
+                                        <a href="payments.html" class="quick-action-card">
+                                            <i class="bi bi-credit-card"></i>
+                                            <span>Make Payment</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6">
+                                        <a href="#" class="quick-action-card" onclick="showHelpModal()">
+                                            <i class="bi bi-question-circle"></i>
+                                            <span>Get Help</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Available Rooms Preview -->
+                <div class="row g-4 mt-2">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="bi bi-building"></i> Available Rooms</h5>
+                                <a href="rooms.html" class="btn btn-sm btn-outline-primary">View All Rooms</a>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="availableRoomsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Block</th>
+                                                <th>Room Number</th>
+                                                <th>Type</th>
+                                                <th>Capacity</th>
+                                                <th>Available Beds</th>
+                                                <th>Monthly Rent</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="7" class="text-center py-4">
+                                                    <div class="spinner-border text-primary" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-0">&copy; 2024 Hostel Room Allotment System. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <a href="#">Privacy Policy</a>
+                        <span class="mx-2">|</span>
+                        <a href="#">Terms of Service</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-question-circle"></i> Help & Support</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Frequently Asked Questions</h6>
+                    <div class="accordion" id="helpAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#help1">
+                                    How do I apply for a room?
+                                </button>
+                            </h2>
+                            <div id="help1" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    Click on "Apply for Room" in the sidebar or Quick Actions section. Fill out the application form and submit.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#help2">
+                                    How long does approval take?
+                                </button>
+                            </h2>
+                            <div id="help2" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    Room applications are typically processed within 3-5 business days.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <h6>Contact Support</h6>
+                    <p><i class="bi bi-envelope"></i> hostel@university.edu<br>
+                    <i class="bi bi-telephone"></i> +1 (555) 123-4567</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="../../js/dashboard.js"></script>
+    <script>
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadDashboardData();
+            loadAvailableRooms();
+        });
+        
+        // Check authentication
+        function checkAuth() {
+            const token = localStorage.getItem('accessToken');
+            const userType = localStorage.getItem('userType');
+            
+            if (!token || userType !== 'student') {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Load user data
+            const studentData = JSON.parse(localStorage.getItem('studentData') || '{}');
+            document.getElementById('userName').textContent = studentData.first_name + ' ' + studentData.last_name;
+            document.getElementById('navUserName').textContent = studentData.first_name;
+        }
+        
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                const token = localStorage.getItem('accessToken');
+                
+                const response = await fetch('http://localhost:5000/api/students/dashboard', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateDashboardUI(data.data);
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+        
+        // Update dashboard UI
+        function updateDashboardUI(data) {
+            // Update stats
+            document.getElementById('activeApplications').textContent = data.activeApplications;
+            
+            // Room status
+            if (data.activeAllocation) {
+                document.getElementById('roomStatus').textContent = 'Allocated';
+                document.getElementById('paymentStatus').textContent = data.activeAllocation.payment_status || 'Pending';
+                
+                // Calculate days remaining
+                if (data.activeAllocation.end_date) {
+                    const endDate = new Date(data.activeAllocation.end_date);
+                    const today = new Date();
+                    const daysRemaining = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+                    document.getElementById('daysRemaining').textContent = daysRemaining > 0 ? daysRemaining : 'Expired';
+                }
+                
+                // Update room allocation card
+                document.getElementById('roomAllocationCard').innerHTML = `
+                    <div class="room-info">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <p><strong><i class="bi bi-building"></i> Block:</strong> ${data.activeAllocation.block_name}</p>
+                                <p><strong><i class="bi bi-door-open"></i> Room:</strong> ${data.activeAllocation.room_number}</p>
+                                <p><strong><i class="bi bi-calendar"></i> Start Date:</strong> ${formatDate(data.activeAllocation.start_date)}</p>
+                            </div>
+                            <div class="col-sm-6">
+                                <p><strong><i class="bi bi-currency-dollar"></i> Rent:</strong> $${data.activeAllocation.rent_amount}/month</p>
+                                <p><strong><i class="bi bi-credit-card"></i> Payment:</strong> <span class="badge bg-${getPaymentStatusColor(data.activeAllocation.payment_status)}">${data.activeAllocation.payment_status}</span></p>
+                                <p><strong><i class="bi bi-check-circle"></i> Status:</strong> <span class="badge bg-success">${data.activeAllocation.allocation_status}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Update payment summary
+            if (data.paymentSummary) {
+                document.getElementById('paymentStatus').textContent = 
+                    data.paymentSummary.pending_payments > 0 ? 'Pending' : 'Paid';
+            }
+        }
+        
+        // Load available rooms
+        async function loadAvailableRooms() {
+            try {
+                const token = localStorage.getItem('accessToken');
+                
+                const response = await fetch('http://localhost:5000/api/students/available-rooms', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    const tbody = document.querySelector('#availableRoomsTable tbody');
+                    tbody.innerHTML = data.data.slice(0, 5).map(room => `
+                        <tr>
+                            <td><span class="badge bg-secondary">${room.block_code}</span> ${room.block_name}</td>
+                            <td>${room.room_number}</td>
+                            <td><span class="badge bg-info">${room.room_type}</span></td>
+                            <td>${room.capacity}</td>
+                            <td><span class="badge bg-success">${room.available_beds}</span></td>
+                            <td>$${room.monthly_rent}</td>
+                            <td>
+                                <a href="apply.html?roomId=${room.id}" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-file-earmark-plus"></i> Apply
+                                </a>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    document.querySelector('#availableRoomsTable tbody').innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox display-4"></i>
+                                <p class="mt-2">No available rooms at the moment</p>
+                            </td>
+                        </tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading rooms:', error);
+            }
+        }
+        
+        // Helper functions
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+        
+        function getPaymentStatusColor(status) {
+            const colors = {
+                'paid': 'success',
+                'pending': 'warning',
+                'partial': 'info',
+                'refunded': 'secondary'
+            };
+            return colors[status] || 'secondary';
+        }
+        
+        // Show help modal
+        function showHelpModal() {
+            new bootstrap.Modal(document.getElementById('helpModal')).show();
+        }
+        
+        // Logout function
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+        
+        // Sidebar toggle
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+            document.querySelector('.main-content').classList.toggle('expanded');
+        });
+    </script>
+</body>
+</html>
