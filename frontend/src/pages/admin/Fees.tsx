@@ -32,9 +32,9 @@ export default function AdminFees() {
   return (
     <>
       <PageHeader title="Fees" description="Deposits, rent and fines across all stays." actions={<Button icon={<Plus className="size-4" />} onClick={() => setRecording(true)}>Record payment</Button>} />
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         {!s ? (
-          <><Skeleton className="h-[104px] rounded-card" /><Skeleton className="h-[104px] rounded-card" /></>
+          <><Skeleton className="h-[136px] rounded-card sm:h-[104px]" /><Skeleton className="h-[136px] rounded-card sm:h-[104px]" /></>
         ) : (
           <>
             <StatCard label="Collected (all time)" value={money(s.total_collected)} icon={<Wallet className="size-5" />} />

@@ -82,13 +82,13 @@ export function StatCard({ label, value, hint, icon, tone = 'brand' }: { label: 
     info: 'bg-info-100 text-info-700',
   };
   return (
-    <Card as="div" className="flex items-start gap-4 p-5">
-      <span className={cx('grid size-10 shrink-0 place-items-center rounded-lg', tones[tone])} aria-hidden>
+    <Card as="div" className="flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:gap-4 sm:p-5">
+      <span className={cx('grid size-9 shrink-0 place-items-center rounded-lg sm:size-10', tones[tone])} aria-hidden>
         {icon}
       </span>
       <div className="min-w-0">
         <p className="text-sm text-muted">{label}</p>
-        <p className="tabular mt-0.5 text-2xl font-semibold tracking-tight">{value}</p>
+        <p className="tabular mt-0.5 text-xl font-semibold tracking-tight break-words sm:text-2xl">{value}</p>
         {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
       </div>
     </Card>

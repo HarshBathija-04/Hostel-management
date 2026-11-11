@@ -38,9 +38,9 @@ export default function StudentDashboard() {
         description={d ? `${d.profile.course} · Year ${d.profile.year_of_study}` : undefined}
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         {dash.isPending ? (
-          Array.from({ length: 4 }, (_, i) => <Skeleton key={i} className="h-[104px] rounded-card" />)
+          Array.from({ length: 4 }, (_, i) => <Skeleton key={i} className="h-[136px] rounded-card sm:h-[104px]" />)
         ) : (
           <>
             <StatCard label="Your room" icon={<BedDouble className="size-5" />} value={alloc ? `${alloc.block_code}-${alloc.room_number}` : 'Not allotted'} hint={alloc ? `Bed ${alloc.bed_number} · until ${date(alloc.end_date)}` : 'Apply to get a bed'} />

@@ -16,9 +16,9 @@ export default function StudentFees() {
   return (
     <>
       <PageHeader title="Fees" description="Deposits and monthly rent recorded against your stay. Pay dues at the hostel office or by bank transfer." />
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         {fees.isPending ? (
-          <><Skeleton className="h-[104px] rounded-card" /><Skeleton className="h-[104px] rounded-card" /></>
+          <><Skeleton className="h-[136px] rounded-card sm:h-[104px]" /><Skeleton className="h-[136px] rounded-card sm:h-[104px]" /></>
         ) : (
           <>
             <StatCard label="Paid so far" value={money(s!.total_paid)} icon={<Wallet className="size-5" />} />

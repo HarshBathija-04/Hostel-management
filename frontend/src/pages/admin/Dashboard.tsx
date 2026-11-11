@@ -27,9 +27,9 @@ export default function AdminDashboard() {
     <>
       <PageHeader title="Dashboard" description="Occupancy, queues and money across every block." />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         {!d ? (
-          Array.from({ length: 4 }, (_, i) => <Skeleton key={i} className="h-[104px] rounded-card" />)
+          Array.from({ length: 4 }, (_, i) => <Skeleton key={i} className="h-[136px] rounded-card sm:h-[104px]" />)
         ) : (
           <>
             <StatCard label="Beds occupied" icon={<BedDouble className="size-5" />} value={`${percent(r!.total_occupied, r!.total_capacity)}%`} hint={`${r!.total_occupied} of ${r!.total_capacity} beds · ${r!.total_available} free`} />
