@@ -46,7 +46,7 @@ export default function AdminAllocations() {
             caption="Room allocations"
             loading={q.isPending}
             rows={q.data?.allocations}
-            empty={<EmptyState icon={<KeyRound className="size-5" />} title={`No ${filter === 'all' ? '' : filter} allocations`} action={<Button variant="secondary" onClick={() => setCreating(true)}>Allot a room</Button>} />}
+            empty={<EmptyState icon={<KeyRound className="size-5" />} title={filter === 'all' ? 'No allocations yet' : `No ${filter} allocations`} action={<Button variant="secondary" onClick={() => setCreating(true)}>Allot a room</Button>} />}
             columns={[
               { header: 'Student', cell: (a) => <div><p className="font-medium">{a.student_name}</p><p className="text-xs text-muted">{a.student_id}</p></div> },
               { header: 'Room', cell: (a) => <div><p className="font-medium">{a.block_code}-{a.room_number}</p><p className="text-xs text-muted">Bed {a.bed_number} · {label(a.room_type)}</p></div> },

@@ -55,7 +55,7 @@ export default function AdminApplications() {
             caption="Room applications"
             loading={q.isPending}
             rows={q.data?.applications}
-            empty={<EmptyState icon={<ClipboardList className="size-5" />} title={filter === 'pending' ? 'Queue is clear' : `No ${filter === 'all' ? '' : filter} applications`} description={filter === 'pending' ? 'New applications will show up here.' : undefined} />}
+            empty={<EmptyState icon={<ClipboardList className="size-5" />} title={filter === 'pending' ? 'Queue is clear' : filter === 'all' ? 'No applications yet' : `No ${filter} applications`} description={filter === 'pending' ? 'New applications will show up here.' : undefined} />}
             columns={[
               { header: 'Student', cell: (a) => <div><p className="font-medium">{a.student_name}</p><p className="text-xs text-muted">{a.student_id} · {label(a.gender)} · Year {a.year_of_study}</p></div> },
               { header: 'Preference', cell: (a) => <div><p>{a.preferred_block ?? 'Any block'}</p><p className="text-xs text-muted">{a.preferred_room_type === 'any' ? 'Any type' : label(a.preferred_room_type)} · {a.duration_months} mo</p></div> },
