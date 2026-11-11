@@ -1,0 +1,31 @@
+# Render Blueprint: the Hostel API as a free web service.
+# The Postgres database is shared by several portfolio apps and created once by hand, so it is
+# NOT declared here. Set DATABASE_URL to that database's Internal Database URL after the first sync.
+services:
+  - type: web
+    name: hostel-management-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci --omit=dev
+    # Free plan has no pre-deploy hook: migrations and the idempotent seed run on boot.
+    startCommand: npm run start:prod
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: DB_SCHEMA
+        value: hostel_management
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRE
+        value: 24h
+      - key: FRONTEND_URL
+        sync: false
+      - key: DEMO_MODE
+        value: "true"
