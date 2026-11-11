@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { KeyRound, Phone, UserRound } from 'lucide-react';
-import { Card, CardHeader, DataTable, EmptyState, ErrorState, PageHeader, Skeleton, StatusBadge } from '../../components/ui';
+import { Card, CardHeader, DataTable, EmptyState, ErrorState, PageHeader, Skeleton, StatusBadge, buttonCls, cx, linkCls } from '../../components/ui';
 import { api, errorMessage } from '../../lib/api';
 import { date, label, money } from '../../lib/format';
 import type { Allocation } from '../../lib/types';
@@ -29,7 +29,7 @@ export default function MyRoom() {
         <Skeleton className="h-56 rounded-card" />
       ) : !a ? (
         <Card>
-          <EmptyState icon={<KeyRound className="size-5" />} title="You don’t have a room yet" description="Once a warden allots you a bed, its details appear here." action={<Link className="inline-flex min-h-11 items-center rounded-lg bg-brand-700 px-4 text-sm font-medium text-white hover:bg-brand-800" to="/student/rooms">Find a room</Link>} />
+          <EmptyState icon={<KeyRound className="size-5" />} title="You don’t have a room yet" description="Once a warden allots you a bed, its details appear here." action={<Link className={buttonCls()} to="/student/rooms">Find a room</Link>} />
         </Card>
       ) : (
         <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
@@ -78,7 +78,7 @@ export default function MyRoom() {
               <p className="text-sm text-muted">Warden</p>
               <p className="mt-1 font-semibold">{a.warden_name ?? 'Not assigned'}</p>
               {a.warden_contact && (
-                <a href={`tel:${a.warden_contact}`} className="mt-2 inline-flex min-h-10 items-center gap-2 text-sm font-medium text-brand-700 hover:underline">
+                <a href={`tel:${a.warden_contact}`} className={cx(linkCls, 'mt-2 inline-flex min-h-10 items-center gap-2 text-sm')}>
                   <Phone className="size-4" aria-hidden /> {a.warden_contact}
                 </a>
               )}

@@ -67,6 +67,25 @@
   }
 }
 
+/* Subtle entrance for native <dialog> modals; disabled by the reduced-motion rule below. */
+dialog[open] {
+  animation: dialog-in 160ms ease-out;
+}
+dialog[open]::backdrop {
+  animation: fade-in 160ms ease-out;
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
 @keyframes shimmer {
   100% {
     transform: translateX(100%);

@@ -1,7 +1,7 @@
 import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { BedDouble, ClipboardList, IndianRupee, Users, Wrench } from 'lucide-react';
-import { Card, CardHeader, EmptyState, ErrorState, PageHeader, Skeleton, StatCard, StatusBadge } from '../../components/ui';
+import { Card, CardHeader, EmptyState, ErrorState, PageHeader, Skeleton, StatCard, StatusBadge, cx, linkCls } from '../../components/ui';
 import { api, errorMessage } from '../../lib/api';
 import { date, money, percent } from '../../lib/format';
 import type { Application } from '../../lib/types';
@@ -33,8 +33,8 @@ export default function AdminDashboard() {
         ) : (
           <>
             <StatCard label="Beds occupied" icon={<BedDouble className="size-5" />} value={`${percent(r!.total_occupied, r!.total_capacity)}%`} hint={`${r!.total_occupied} of ${r!.total_capacity} beds · ${r!.total_available} free`} />
-            <StatCard label="Pending applications" icon={<ClipboardList className="size-5" />} tone={s!.pendingApplications ? 'amber' : 'brand'} value={s!.pendingApplications} hint={<Link to="/admin/applications" className="font-medium text-brand-700 hover:underline">Review queue</Link>} />
-            <StatCard label="Open complaints" icon={<Wrench className="size-5" />} tone={s!.openComplaints ? 'danger' : 'brand'} value={s!.openComplaints} hint={<Link to="/admin/complaints" className="font-medium text-brand-700 hover:underline">Triage tickets</Link>} />
+            <StatCard label="Pending applications" icon={<ClipboardList className="size-5" />} tone={s!.pendingApplications ? 'amber' : 'brand'} value={s!.pendingApplications} hint={<Link to="/admin/applications" className={linkCls}>Review queue</Link>} />
+            <StatCard label="Open complaints" icon={<Wrench className="size-5" />} tone={s!.openComplaints ? 'danger' : 'brand'} value={s!.openComplaints} hint={<Link to="/admin/complaints" className={linkCls}>Triage tickets</Link>} />
             <StatCard label="Collected this month" icon={<IndianRupee className="size-5" />} tone="info" value={money(s!.collectedThisMonth)} hint={`${money(s!.pendingDues)} outstanding`} />
           </>
         )}
@@ -61,7 +61,7 @@ export default function AdminDashboard() {
         </Card>
 
         <Card>
-          <CardHeader title="Latest applications" action={<Link to="/admin/applications" className="text-sm font-medium text-brand-700 hover:underline">View all</Link>} />
+          <CardHeader title="Latest applications" action={<Link to="/admin/applications" className={cx(linkCls, 'text-sm')}>View all</Link>} />
           {!d ? (
             <div className="space-y-3 p-5">{Array.from({ length: 4 }, (_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
           ) : d.recentApplications.length === 0 ? (

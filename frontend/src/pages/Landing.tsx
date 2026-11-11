@@ -1,7 +1,7 @@
 import { Link } from 'react-router';
 import { ArrowRight, BedDouble, ClipboardCheck, CreditCard, ShieldCheck, Wrench } from 'lucide-react';
 import { PublicShell } from '../components/Layout';
-import { BedPips, cx } from '../components/ui';
+import { BedPips, buttonCls, cx } from '../components/ui';
 
 // Illustrative floor for the hero board (static, not live data).
 const floor = [
@@ -34,10 +34,10 @@ export default function Landing() {
               view of occupancy across every block.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/login" className="inline-flex min-h-12 items-center gap-2 rounded-lg bg-brand-700 px-5 font-medium text-white shadow-sm transition-colors hover:bg-brand-800">
+              <Link to="/login" className={cx(buttonCls(), 'min-h-12 px-5 text-base')}>
                 Open the student portal <ArrowRight className="size-4" aria-hidden />
               </Link>
-              <Link to="/admin/login" className="inline-flex min-h-12 items-center rounded-lg border border-line-strong bg-surface px-5 font-medium transition-colors hover:bg-sunken">
+              <Link to="/admin/login" className={cx(buttonCls('secondary'), 'min-h-12 px-5 text-base')}>
                 Warden console
               </Link>
             </div>

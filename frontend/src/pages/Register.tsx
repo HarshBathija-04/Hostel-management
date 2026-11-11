@@ -3,7 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { PublicShell } from '../components/Layout';
-import { Button, Card, Field, inputCls } from '../components/ui';
+import { Button, Card, Field, inputCls, linkCls } from '../components/ui';
 import { api, ApiError } from '../lib/api';
 import { useAuth } from '../lib/auth';
 
@@ -92,7 +92,7 @@ export default function Register() {
             )}
             <div className="flex flex-wrap items-center justify-between gap-3 sm:col-span-2">
               <p className="text-sm text-muted">
-                Already registered? <Link to="/login" className="font-medium text-brand-700 hover:underline">Sign in</Link>
+                Already registered? <Link to="/login" className={linkCls}>Sign in</Link>
               </p>
               <Button type="submit" loading={register.isPending}>Create account</Button>
             </div>

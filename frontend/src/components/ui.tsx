@@ -21,20 +21,22 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode;
 }
 
+/** Button styling, also used for router links that should look like buttons. */
+export const buttonCls = (variant: keyof typeof buttonVariants = 'primary', size: 'sm' | 'md' = 'md') =>
+  cx(
+    'inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium whitespace-nowrap select-none',
+    'transition-[background-color,border-color,transform] duration-150 active:scale-[0.97]',
+    'disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100',
+    size === 'sm' ? 'min-h-9 px-3' : 'min-h-11 px-4',
+    buttonVariants[variant],
+  );
+
+/** Inline text link. */
+export const linkCls = 'font-medium text-brand-700 underline-offset-2 hover:underline';
+
 export function Button({ variant = 'primary', size = 'md', loading, icon, className, children, disabled, ...rest }: ButtonProps) {
   return (
-    <button
-      {...rest}
-      disabled={disabled || loading}
-      className={cx(
-        'inline-flex items-center justify-center gap-2 rounded-lg font-medium whitespace-nowrap select-none',
-        'transition-[background-color,border-color,transform] duration-150 active:scale-[0.97]',
-        'disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100',
-        size === 'sm' ? 'min-h-9 px-3 text-sm' : 'min-h-11 px-4 text-sm',
-        buttonVariants[variant],
-        className,
-      )}
-    >
+    <button {...rest} disabled={disabled || loading} aria-busy={loading || undefined} className={cx(buttonCls(variant, size), className)}>
       {loading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : icon}
       {children}
     </button>
@@ -143,7 +145,7 @@ export function BedPips({ capacity, occupied, size = 'md' }: { capacity: number;
 /* ---------- Forms ---------- */
 
 export const inputCls =
-  'block w-full min-h-11 rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted' +
+  'block w-full min-h-11 rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted ' +
   'transition-[border-color,box-shadow] focus:border-brand-500 focus:ring-2 focus:ring-brand-200 focus:outline-none ' +
   'aria-[invalid=true]:border-danger-600 disabled:bg-sunken';
 

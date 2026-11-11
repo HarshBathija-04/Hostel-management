@@ -1,7 +1,6 @@
 import { lazy, Suspense, useEffect, type ReactNode } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router';
-import { AppShell } from './components/Layout';
-import { Skeleton } from './components/ui';
+import { AppShell, PageFallback } from './components/Layout';
 import { useAuth } from './lib/auth';
 import type { Role } from './lib/types';
 import Landing from './pages/Landing';
@@ -54,14 +53,6 @@ function RequireRole({ role, children }: { role: Role; children: ReactNode }) {
   return <>{children}</>;
 }
 
-const PageFallback = () => (
-  <div className="space-y-4" aria-busy="true" aria-label="Loading page">
-    <Skeleton className="h-9 w-56" />
-    <Skeleton className="h-28 w-full" />
-    <Skeleton className="h-64 w-full" />
-  </div>
-);
-
 export default function App() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -78,23 +69,23 @@ export default function App() {
         <Route path="/admin/login" element={<Login role="admin" />} />
 
         <Route path="/student" element={<RequireRole role="student"><AppShell /></RequireRole>}>
-          <Route index element={<Suspense fallback={<PageFallback />}><StudentDashboard /></Suspense>} />
-          <Route path="rooms" element={<Suspense fallback={<PageFallback />}><StudentRooms /></Suspense>} />
-          <Route path="applications" element={<Suspense fallback={<PageFallback />}><StudentApplications /></Suspense>} />
-          <Route path="my-room" element={<Suspense fallback={<PageFallback />}><MyRoom /></Suspense>} />
-          <Route path="fees" element={<Suspense fallback={<PageFallback />}><StudentFees /></Suspense>} />
-          <Route path="complaints" element={<Suspense fallback={<PageFallback />}><StudentComplaints /></Suspense>} />
-          <Route path="profile" element={<Suspense fallback={<PageFallback />}><Profile /></Suspense>} />
+          <Route index element={<StudentDashboard />} />
+          <Route path="rooms" element={<StudentRooms />} />
+          <Route path="applications" element={<StudentApplications />} />
+          <Route path="my-room" element={<MyRoom />} />
+          <Route path="fees" element={<StudentFees />} />
+          <Route path="complaints" element={<StudentComplaints />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
 
         <Route path="/admin" element={<RequireRole role="admin"><AppShell /></RequireRole>}>
-          <Route index element={<Suspense fallback={<PageFallback />}><AdminDashboard /></Suspense>} />
-          <Route path="applications" element={<Suspense fallback={<PageFallback />}><AdminApplications /></Suspense>} />
-          <Route path="rooms" element={<Suspense fallback={<PageFallback />}><AdminRooms /></Suspense>} />
-          <Route path="allocations" element={<Suspense fallback={<PageFallback />}><AdminAllocations /></Suspense>} />
-          <Route path="students" element={<Suspense fallback={<PageFallback />}><AdminStudents /></Suspense>} />
-          <Route path="fees" element={<Suspense fallback={<PageFallback />}><AdminFees /></Suspense>} />
-          <Route path="complaints" element={<Suspense fallback={<PageFallback />}><AdminComplaints /></Suspense>} />
+          <Route index element={<AdminDashboard />} />
+          <Route path="applications" element={<AdminApplications />} />
+          <Route path="rooms" element={<AdminRooms />} />
+          <Route path="allocations" element={<AdminAllocations />} />
+          <Route path="students" element={<AdminStudents />} />
+          <Route path="fees" element={<AdminFees />} />
+          <Route path="complaints" element={<AdminComplaints />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />

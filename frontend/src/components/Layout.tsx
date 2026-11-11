@@ -1,11 +1,11 @@
-import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { Suspense, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router';
 import {
   BedDouble, Building2, ClipboardList, CreditCard, KeyRound, LayoutDashboard, LogOut, Menu, UserRound, Users, Wrench, X,
 } from 'lucide-react';
 import { useAuth } from '../lib/auth';
 import { wakeStore } from '../lib/api';
-import { cx } from './ui';
+import { cx, Skeleton } from './ui';
 
 const nav = {
   student: [
@@ -36,6 +36,14 @@ export function Logo({ light = false }: { light?: boolean }) {
     </span>
   );
 }
+
+export const PageFallback = () => (
+  <div className="space-y-4" aria-busy="true" aria-label="Loading page">
+    <Skeleton className="h-9 w-56" />
+    <Skeleton className="h-28 w-full" />
+    <Skeleton className="h-64 w-full" />
+  </div>
+);
 
 export function WakeBanner() {
   const waking = useSyncExternalStore(wakeStore.subscribe, wakeStore.isWaking);
@@ -161,7 +169,9 @@ export function AppShell() {
 
       <WakeBanner />
       <main id="main" className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <Outlet />
+        <Suspense fallback={<PageFallback />}>
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   );

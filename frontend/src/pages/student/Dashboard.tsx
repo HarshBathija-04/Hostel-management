@@ -1,7 +1,7 @@
 import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, BedDouble, ClipboardList, CreditCard, Wrench } from 'lucide-react';
-import { Card, CardHeader, ErrorState, PageHeader, Skeleton, StatCard, StatusBadge } from '../../components/ui';
+import { Card, CardHeader, ErrorState, PageHeader, Skeleton, StatCard, StatusBadge, buttonCls, cx, linkCls } from '../../components/ui';
 import { api, errorMessage } from '../../lib/api';
 import { date, label, money, monthLabel } from '../../lib/format';
 import type { Allocation, Application, Complaint, Payment } from '../../lib/types';
@@ -68,7 +68,7 @@ export default function StudentDashboard() {
         </Card>
 
         <Card>
-          <CardHeader title="Recent fees" action={<Link to="/student/fees" className="text-sm font-medium text-brand-700 hover:underline">All fees</Link>} />
+          <CardHeader title="Recent fees" action={<Link to="/student/fees" className={cx(linkCls, 'text-sm')}>All fees</Link>} />
           <ul className="divide-y divide-line">
             {fees.isPending
               ? Array.from({ length: 3 }, (_, i) => <li key={i} className="px-5 py-3"><Skeleton className="h-5 w-full" /></li>)
@@ -96,7 +96,7 @@ function NextStep({ title, body, to, cta }: { title: string; body: string; to: s
         <p className="font-semibold">{title}</p>
         <p className="mt-1 text-sm text-muted">{body}</p>
       </div>
-      <Link to={to} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-brand-700 px-4 text-sm font-medium text-white hover:bg-brand-800">
+      <Link to={to} className={buttonCls()}>
         {cta} <ArrowRight className="size-4" aria-hidden />
       </Link>
     </div>

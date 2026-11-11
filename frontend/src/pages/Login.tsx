@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Info } from 'lucide-react';
 import { PublicShell } from '../components/Layout';
-import { Button, Card, Field, inputCls } from '../components/ui';
+import { Button, Card, Field, inputCls, linkCls } from '../components/ui';
 import { api, ApiError } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import type { Role, SessionUser } from '../lib/types';
@@ -89,9 +89,9 @@ export default function Login({ role }: { role: Role }) {
 
           <p className="mt-6 text-center text-sm text-muted">
             {isAdmin ? (
-              <>Resident? <Link to="/login" className="font-medium text-brand-700 underline-offset-2 hover:underline">Student login</Link></>
+              <>Resident? <Link to="/login" className={linkCls}>Student login</Link></>
             ) : (
-              <>New here? <Link to="/register" className="font-medium text-brand-700 underline-offset-2 hover:underline">Create a student account</Link></>
+              <>New here? <Link to="/register" className={linkCls}>Create a student account</Link></>
             )}
           </p>
         </Card>
