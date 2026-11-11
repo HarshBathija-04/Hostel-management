@@ -1,265 +1,117 @@
 /**
- * Hostel Room Allotment System - Main Server File
- * Express.js server with MySQL database integration
+ * Hostel Room Allotment System - JSON API (Express + Postgres).
+ * `node server.js` starts the server; requiring this file only builds the app (used by tests).
  */
-
-// =====================================================
-// Load Environment Variables
-// =====================================================
 require('dotenv').config();
 
-// =====================================================
-// Import Dependencies
-// =====================================================
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
-const path = require('path');
 
-// Import database configuration
-const { testConnection } = require('./config/database');
-
-// Import routes
+const { ping, pool } = require('./config/database');
 const studentRoutes = require('./routes/studentRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
-// =====================================================
-// Initialize Express App
-// =====================================================
+const isProd = process.env.NODE_ENV === 'production';
+const isTest = process.env.NODE_ENV === 'test';
+
+if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is required');
+}
+
 const app = express();
-const PORT = process.env.PORT || 5000;
-const HOST = process.env.HOST || 'localhost';
+app.disable('x-powered-by');
+// Render terminates TLS in front of the app; trust it so rate limiting sees real client IPs.
+app.set('trust proxy', 1);
 
-// =====================================================
-// Security Middleware
-// =====================================================
+app.use(helmet());
 
-// Helmet for security headers
-app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
-            imgSrc: ["'self'", "data:", "https:"],
-            fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
-            connectSrc: ["'self'", `http://localhost:${PORT}`]
-        }
-    },
-    crossOriginEmbedderPolicy: false
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5212')
+    .split(',')
+    .map((origin) => origin.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+
+app.use(cors({
+    origin: (origin, callback) => callback(null, !origin || allowedOrigins.includes(origin)),
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    maxAge: 86400
 }));
 
-// CORS configuration
-const corsOptions = {
-    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:3000', 'http://127.0.0.1:5500'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    credentials: true,
-    maxAge: 86400 // 24 hours
-};
-app.use(cors(corsOptions));
-
-// Rate limiting
-const limiter = rateLimit({
-    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
-    message: {
-        success: false,
-        message: 'Too many requests from this IP, please try again later.'
-    },
+const limiter = (max, message) => rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max,
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    skip: () => isTest,
+    message: { success: false, message }
 });
-app.use('/api/', limiter);
 
-// Stricter rate limiting for auth endpoints
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // 5 attempts
-    message: {
-        success: false,
-        message: 'Too many login attempts, please try again after 15 minutes.'
-    }
-});
-app.use('/api/students/login', authLimiter);
-app.use('/api/admin/login', authLimiter);
+app.use('/api/', limiter(parseInt(process.env.RATE_LIMIT_MAX_REQUESTS, 10) || 300, 'Too many requests, please try again later.'));
+const authLimiter = limiter(20, 'Too many attempts, please try again in 15 minutes.');
+app.use(['/api/students/login', '/api/students/register', '/api/admin/login'], authLimiter);
 
-// =====================================================
-// Logging Middleware
-// =====================================================
-if (process.env.NODE_ENV === 'development') {
-    app.use(morgan('dev'));
-} else {
-    app.use(morgan('combined'));
+if (!isTest) {
+    app.use(morgan(isProd ? 'combined' : 'dev'));
 }
 
-// =====================================================
-// Body Parsing Middleware
-// =====================================================
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '100kb' }));
 
-// =====================================================
-// Static Files Middleware
-// =====================================================
-// Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Keep-alive and Render health check: also exercises the DB connection.
+const health = async (req, res) => {
+    const dbOk = await ping();
+    res.status(dbOk ? 200 : 503).json({ status: dbOk ? 'ok' : 'error', db: dbOk ? 'ok' : 'error' });
+};
+app.get('/health', health);
+app.get('/api/health', health);
 
-// Serve frontend static files in production
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../frontend')));
-}
-
-// =====================================================
-// API Routes
-// =====================================================
-
-// Health check endpoint
-app.get('/api/health', async (req, res) => {
-    const dbConnected = await testConnection();
-    res.status(dbConnected ? 200 : 500).json({
-        success: dbConnected,
-        message: dbConnected ? 'Server is running and database is connected' : 'Database connection failed',
-        timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV || 'development',
-        version: '1.0.0'
-    });
-});
-
-// API routes
 app.use('/api/students', studentRoutes);
 app.use('/api/admin', adminRoutes);
 
-// =====================================================
-// Frontend Routes (for SPA)
-// =====================================================
-if (process.env.NODE_ENV === 'production') {
-    // Serve student portal
-    app.get('/student/*', (req, res) => {
-        res.sendFile(path.join(__dirname, '../frontend/pages/student', 'index.html'));
-    });
-
-    // Serve admin portal
-    app.get('/admin/*', (req, res) => {
-        res.sendFile(path.join(__dirname, '../frontend/pages/admin', 'index.html'));
-    });
-
-    // Serve main pages
-    app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, '../frontend', 'index.html'));
-    });
-}
-
-// =====================================================
-// Error Handling Middleware
-// =====================================================
-
-// 404 - Route not found
-app.use((req, res, next) => {
-    res.status(404).json({
-        success: false,
-        message: 'Route not found',
-        path: req.originalUrl
-    });
+app.use((req, res) => {
+    res.status(404).json({ success: false, message: 'Route not found' });
 });
 
-// Global error handler
-app.use((err, req, res, next) => {
-    console.error('Error:', err);
-
-    // Handle specific error types
-    if (err.name === 'UnauthorizedError') {
-        return res.status(401).json({
-            success: false,
-            message: 'Unauthorized access'
-        });
-    }
-
-    if (err.name === 'ValidationError') {
-        return res.status(400).json({
-            success: false,
-            message: 'Validation error',
-            errors: err.errors
-        });
-    }
-
-    if (err.code === 'ER_DUP_ENTRY') {
-        return res.status(409).json({
-            success: false,
-            message: 'Duplicate entry - record already exists'
-        });
-    }
-
-    if (err.code === 'ER_NO_REFERENCED_ROW') {
-        return res.status(400).json({
-            success: false,
-            message: 'Referenced record not found'
-        });
-    }
-
-    // Default error response
-    res.status(err.status || 500).json({
-        success: false,
-        message: err.message || 'Internal server error',
-        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-    });
-});
-
-// =====================================================
-// Server Initialization
-// =====================================================
-
-const startServer = async () => {
-    try {
-        // Test database connection
-        console.log('🔌 Testing database connection...');
-        const dbConnected = await testConnection();
-        
-        if (!dbConnected) {
-            console.error('❌ Failed to connect to database. Please check your configuration.');
-            process.exit(1);
-        }
-
-        // Start server
-        app.listen(PORT, HOST, () => {
-            console.log('╔════════════════════════════════════════════════════════╗');
-            console.log('║     🏨 Hostel Room Allotment System - Server           ║');
-            console.log('╠════════════════════════════════════════════════════════╣');
-            console.log(`║  🌐 Server running at: http://${HOST}:${PORT}              ║`);
-            console.log(`║  📁 Environment: ${process.env.NODE_ENV || 'development'}${' '.repeat(28 - (process.env.NODE_ENV || 'development').length)}║`);
-            console.log(`║  🗄️  Database: Connected${' '.repeat(25)}║`);
-            console.log('╠════════════════════════════════════════════════════════╣');
-            console.log('║  API Endpoints:                                        ║');
-            console.log(`║    • Health Check: http://${HOST}:${PORT}/api/health         ║`);
-            console.log(`║    • Student API:  http://${HOST}:${PORT}/api/students       ║`);
-            console.log(`║    • Admin API:    http://${HOST}:${PORT}/api/admin          ║`);
-            console.log('╚════════════════════════════════════════════════════════╝');
-        });
-
-    } catch (error) {
-        console.error('❌ Server startup error:', error);
-        process.exit(1);
-    }
+// Postgres error codes that are the client's fault, not the server's.
+const PG_ERRORS = {
+    '23505': [409, 'A record with these details already exists'],
+    '23503': [400, 'A referenced record does not exist'],
+    '23514': [400, 'The request violates a data rule (for example, capacity below occupied beds)'],
+    '22P02': [400, 'Invalid value in request'],
+    '22007': [400, 'Invalid date in request'],
+    '22008': [400, 'Invalid date in request']
 };
 
-// Handle uncaught exceptions
-process.on('uncaughtException', (err) => {
-    console.error('❌ Uncaught Exception:', err);
-    process.exit(1);
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+    if (err.type === 'entity.parse.failed') {
+        return res.status(400).json({ success: false, message: 'Malformed JSON body' });
+    }
+    if (err.type === 'entity.too.large') {
+        return res.status(413).json({ success: false, message: 'Request body too large' });
+    }
+    const mapped = PG_ERRORS[err.code];
+    if (mapped) {
+        return res.status(mapped[0]).json({ success: false, message: mapped[1] });
+    }
+    console.error('Unhandled error:', err);
+    return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        ...(!isProd && { detail: err.message })
+    });
 });
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-    console.error('❌ Unhandled Rejection:', err);
-    process.exit(1);
-});
+if (require.main === module) {
+    const port = parseInt(process.env.PORT, 10) || 5124;
+    const server = app.listen(port, () => {
+        console.log(`Hostel API listening on port ${port} (${process.env.NODE_ENV || 'development'})`);
+    });
+    const shutdown = () => server.close(() => pool.end().then(() => process.exit(0)));
+    process.on('SIGTERM', shutdown);
+    process.on('SIGINT', shutdown);
+}
 
-// Start the server
-startServer();
-
-// =====================================================
-// Export for testing
-// =====================================================
 module.exports = app;

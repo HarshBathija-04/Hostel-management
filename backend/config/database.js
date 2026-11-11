@@ -1,128 +1,69 @@
 /**
- * Database Configuration Module
- * Handles MySQL connection pool configuration and database operations
+ * Postgres connection pool. Connects only via DATABASE_URL and pins search_path to DB_SCHEMA,
+ * because all portfolio apps share one Render Postgres database, one schema per app.
  */
-
-const mysql = require('mysql2/promise');
+const { Pool, types } = require('pg');
 require('dotenv').config();
 
-// Database configuration from environment variables
-const dbConfig = {
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'hostel_db',
-    port: process.env.DB_PORT || 3306,
-    
-    // Connection pool settings
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-    
-    // Timeout settings
-    connectTimeout: 10000,
-    acquireTimeout: 10000,
-    
-    // Enable prepared statements
-    namedPlaceholders: true,
-    
-    // Date handling
-    dateStrings: true,
-    
-    // Debug mode (set to true for development)
-    debug: process.env.DB_DEBUG === 'true'
+// COUNT()/SUM() come back as int8/numeric strings; the API has always returned numbers.
+types.setTypeParser(20, (v) => parseInt(v, 10));
+types.setTypeParser(1700, (v) => parseFloat(v));
+// Keep DATE as 'YYYY-MM-DD' instead of a timezone-shifted JS Date.
+types.setTypeParser(1082, (v) => v);
+
+const schema = process.env.DB_SCHEMA || 'hostel_management';
+if (!/^[a-z_][a-z0-9_]*$/i.test(schema)) {
+    throw new Error(`Invalid DB_SCHEMA "${schema}"`);
+}
+
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    // Render's internal URL needs no TLS; set DATABASE_SSL=true when using the external URL.
+    ssl: process.env.DATABASE_SSL === 'true' ? true : undefined,
+    options: `-c search_path=${schema}`,
+    max: parseInt(process.env.DB_POOL_MAX, 10) || 10,
+    connectionTimeoutMillis: 10000,
+    idleTimeoutMillis: 30000
+});
+
+pool.on('error', (err) => console.error('Idle Postgres client error:', err.message));
+
+// The controllers were written for mysql2 '?' placeholders; translate them to $1, $2, ...
+const toPg = (sql) => {
+    let i = 0;
+    return sql.replace(/\?/g, () => `$${++i}`);
 };
 
-// Create connection pool
-const pool = mysql.createPool(dbConfig);
+/** Run a parameterized query and return its rows. */
+const query = async (sql, params = []) => (await pool.query(toPg(sql), params)).rows;
 
-/**
- * Test database connection
- * @returns {Promise<boolean>} - Returns true if connection is successful
- */
-const testConnection = async () => {
+/** Run callback({ query }) inside BEGIN/COMMIT, rolling back on any error. */
+const transaction = async (callback) => {
+    const client = await pool.connect();
     try {
-        const connection = await pool.getConnection();
-        console.log('✅ Database connection established successfully');
-        connection.release();
+        await client.query('BEGIN');
+        const result = await callback({
+            query: async (sql, params = []) => (await client.query(toPg(sql), params)).rows
+        });
+        await client.query('COMMIT');
+        return result;
+    } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+    } finally {
+        client.release();
+    }
+};
+
+/** True when the database answers SELECT 1. */
+const ping = async () => {
+    try {
+        await pool.query('SELECT 1');
         return true;
     } catch (error) {
-        console.error('❌ Database connection failed:', error.message);
+        console.error('Database ping failed:', error.message);
         return false;
     }
 };
 
-/**
- * Execute a SQL query with parameters
- * @param {string} sql - SQL query string
- * @param {Array} params - Query parameters
- * @returns {Promise<Array>} - Query results
- */
-const query = async (sql, params = []) => {
-    try {
-        const [results] = await pool.execute(sql, params);
-        return results;
-    } catch (error) {
-        console.error('Query Error:', error.message);
-        throw error;
-    }
-};
-
-/**
- * Execute a transaction with multiple queries
- * @param {Function} callback - Async function containing transaction queries
- * @returns {Promise<any>} - Transaction results
- */
-const transaction = async (callback) => {
-    const connection = await pool.getConnection();
-    try {
-        await connection.beginTransaction();
-        const result = await callback(connection);
-        await connection.commit();
-        return result;
-    } catch (error) {
-        await connection.rollback();
-        console.error('Transaction Error:', error.message);
-        throw error;
-    } finally {
-        connection.release();
-    }
-};
-
-/**
- * Get a single connection from the pool
- * @returns {Promise<Object>} - Database connection
- */
-const getConnection = async () => {
-    return await pool.getConnection();
-};
-
-/**
- * Close all connections in the pool
- * @returns {Promise<void>}
- */
-const closePool = async () => {
-    await pool.end();
-    console.log('Database pool closed');
-};
-
-// Handle process termination
-process.on('SIGINT', async () => {
-    await closePool();
-    process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-    await closePool();
-    process.exit(0);
-});
-
-module.exports = {
-    pool,
-    query,
-    transaction,
-    getConnection,
-    testConnection,
-    closePool,
-    dbConfig
-};
+module.exports = { pool, schema, query, transaction, ping, toPg };

@@ -3,14 +3,13 @@
  * Handles all student-related operations including registration, login, profile management, and applications
  */
 
-const { query, transaction } = require('../config/database');
+const { query } = require('../config/database');
 const { 
     hashPassword, 
     comparePassword, 
     generateTokens, 
     sendSuccess, 
     sendError,
-    formatDate,
     getPaginationParams,
     createPagination,
     omit
@@ -24,7 +23,7 @@ const {
  * Register a new student
  * POST /api/students/register
  */
-const register = async (req, res) => {
+const register = async (req, res, next) => {
     try {
         const {
             studentId,
@@ -62,7 +61,7 @@ const register = async (req, res) => {
                 student_id, email, password, first_name, last_name, 
                 date_of_birth, gender, phone, address, course, 
                 department, year_of_study, emergency_contact_name, emergency_contact_phone
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
             [
                 studentId, email, hashedPassword, firstName, lastName,
                 dateOfBirth || null, gender, phone || null, address || null, course,
@@ -74,12 +73,12 @@ const register = async (req, res) => {
         const newStudent = await query(
             `SELECT id, student_id, email, first_name, last_name, gender, course, year_of_study, created_at 
              FROM students WHERE id = ?`,
-            [result.insertId]
+            [result[0].id]
         );
 
         // Generate tokens
         const tokens = generateTokens({
-            id: result.insertId,
+            id: result[0].id,
             userType: 'student',
             email,
             role: null
@@ -91,8 +90,7 @@ const register = async (req, res) => {
         }, 201);
 
     } catch (error) {
-        console.error('Student Registration Error:', error);
-        return sendError(res, 'Failed to register student', 500);
+        return next(error);
     }
 };
 
@@ -100,7 +98,7 @@ const register = async (req, res) => {
  * Student login
  * POST /api/students/login
  */
-const login = async (req, res) => {
+const login = async (req, res, next) => {
     try {
         const { studentId, password } = req.body;
 
@@ -153,8 +151,7 @@ const login = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Student Login Error:', error);
-        return sendError(res, 'Login failed', 500);
+        return next(error);
     }
 };
 
@@ -162,7 +159,7 @@ const login = async (req, res) => {
  * Get current student profile
  * GET /api/students/profile
  */
-const getProfile = async (req, res) => {
+const getProfile = async (req, res, next) => {
     try {
         const studentId = req.user.id;
 
@@ -182,8 +179,7 @@ const getProfile = async (req, res) => {
         return sendSuccess(res, 'Profile retrieved successfully', students[0]);
 
     } catch (error) {
-        console.error('Get Profile Error:', error);
-        return sendError(res, 'Failed to retrieve profile', 500);
+        return next(error);
     }
 };
 
@@ -191,7 +187,7 @@ const getProfile = async (req, res) => {
  * Update student profile
  * PUT /api/students/profile
  */
-const updateProfile = async (req, res) => {
+const updateProfile = async (req, res, next) => {
     try {
         const studentId = req.user.id;
         const {
@@ -266,8 +262,7 @@ const updateProfile = async (req, res) => {
         return sendSuccess(res, 'Profile updated successfully', updatedProfile[0]);
 
     } catch (error) {
-        console.error('Update Profile Error:', error);
-        return sendError(res, 'Failed to update profile', 500);
+        return next(error);
     }
 };
 
@@ -275,7 +270,7 @@ const updateProfile = async (req, res) => {
  * Change student password
  * PUT /api/students/change-password
  */
-const changePassword = async (req, res) => {
+const changePassword = async (req, res, next) => {
     try {
         const studentId = req.user.id;
         const { currentPassword, newPassword } = req.body;
@@ -309,8 +304,7 @@ const changePassword = async (req, res) => {
         return sendSuccess(res, 'Password changed successfully');
 
     } catch (error) {
-        console.error('Change Password Error:', error);
-        return sendError(res, 'Failed to change password', 500);
+        return next(error);
     }
 };
 
@@ -322,7 +316,7 @@ const changePassword = async (req, res) => {
  * Submit room application
  * POST /api/students/applications
  */
-const submitApplication = async (req, res) => {
+const submitApplication = async (req, res, next) => {
     try {
         const studentId = req.user.id;
         const {
@@ -372,7 +366,7 @@ const submitApplication = async (req, res) => {
             `INSERT INTO room_applications (
                 student_id, preferred_block_id, preferred_room_type, 
                 preferred_start_date, duration_months, special_requirements
-            ) VALUES (?, ?, ?, ?, ?, ?)`,
+            ) VALUES (?, ?, ?, ?, ?, ?) RETURNING id`,
             [
                 studentId,
                 preferredBlockId || null,
@@ -389,14 +383,13 @@ const submitApplication = async (req, res) => {
              FROM room_applications ra
              LEFT JOIN hostel_blocks hb ON ra.preferred_block_id = hb.id
              WHERE ra.id = ?`,
-            [result.insertId]
+            [result[0].id]
         );
 
         return sendSuccess(res, 'Application submitted successfully', application[0], 201);
 
     } catch (error) {
-        console.error('Submit Application Error:', error);
-        return sendError(res, 'Failed to submit application', 500);
+        return next(error);
     }
 };
 
@@ -404,7 +397,7 @@ const submitApplication = async (req, res) => {
  * Get student's applications
  * GET /api/students/applications
  */
-const getMyApplications = async (req, res) => {
+const getMyApplications = async (req, res, next) => {
     try {
         const studentId = req.user.id;
         const { page, limit, offset } = getPaginationParams(req);
@@ -439,8 +432,7 @@ const getMyApplications = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get Applications Error:', error);
-        return sendError(res, 'Failed to retrieve applications', 500);
+        return next(error);
     }
 };
 
@@ -448,7 +440,7 @@ const getMyApplications = async (req, res) => {
  * Get application by ID
  * GET /api/students/applications/:id
  */
-const getApplicationById = async (req, res) => {
+const getApplicationById = async (req, res, next) => {
     try {
         const studentId = req.user.id;
         const applicationId = req.params.id;
@@ -470,8 +462,7 @@ const getApplicationById = async (req, res) => {
         return sendSuccess(res, 'Application retrieved successfully', applications[0]);
 
     } catch (error) {
-        console.error('Get Application Error:', error);
-        return sendError(res, 'Failed to retrieve application', 500);
+        return next(error);
     }
 };
 
@@ -479,7 +470,7 @@ const getApplicationById = async (req, res) => {
  * Cancel application
  * PUT /api/students/applications/:id/cancel
  */
-const cancelApplication = async (req, res) => {
+const cancelApplication = async (req, res, next) => {
     try {
         const studentId = req.user.id;
         const applicationId = req.params.id;
@@ -509,8 +500,7 @@ const cancelApplication = async (req, res) => {
         return sendSuccess(res, 'Application cancelled successfully');
 
     } catch (error) {
-        console.error('Cancel Application Error:', error);
-        return sendError(res, 'Failed to cancel application', 500);
+        return next(error);
     }
 };
 
@@ -522,7 +512,7 @@ const cancelApplication = async (req, res) => {
  * Get student's room allocation
  * GET /api/students/allocation
  */
-const getMyAllocation = async (req, res) => {
+const getMyAllocation = async (req, res, next) => {
     try {
         const studentId = req.user.id;
 
@@ -556,8 +546,7 @@ const getMyAllocation = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get Allocation Error:', error);
-        return sendError(res, 'Failed to retrieve allocation', 500);
+        return next(error);
     }
 };
 
@@ -565,7 +554,7 @@ const getMyAllocation = async (req, res) => {
  * Get room allocation history
  * GET /api/students/allocation-history
  */
-const getAllocationHistory = async (req, res) => {
+const getAllocationHistory = async (req, res, next) => {
     try {
         const studentId = req.user.id;
         const { page, limit, offset } = getPaginationParams(req);
@@ -596,8 +585,7 @@ const getAllocationHistory = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get Allocation History Error:', error);
-        return sendError(res, 'Failed to retrieve allocation history', 500);
+        return next(error);
     }
 };
 
@@ -609,7 +597,7 @@ const getAllocationHistory = async (req, res) => {
  * Get student dashboard data
  * GET /api/students/dashboard
  */
-const getDashboard = async (req, res) => {
+const getDashboard = async (req, res, next) => {
     try {
         const studentId = req.user.id;
 
@@ -656,8 +644,7 @@ const getDashboard = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get Dashboard Error:', error);
-        return sendError(res, 'Failed to retrieve dashboard data', 500);
+        return next(error);
     }
 };
 
@@ -665,7 +652,7 @@ const getDashboard = async (req, res) => {
  * Get available rooms for students
  * GET /api/students/available-rooms
  */
-const getAvailableRooms = async (req, res) => {
+const getAvailableRooms = async (req, res, next) => {
     try {
         const { blockId, roomType } = req.query;
 
@@ -676,9 +663,11 @@ const getAvailableRooms = async (req, res) => {
             WHERE r.is_active = TRUE 
               AND r.room_status = 'available'
               AND r.available_beds > 0
+              AND hb.is_active = TRUE
+              AND hb.gender_type IN ('mixed', (SELECT gender FROM students WHERE id = ?))
         `;
-        
-        const params = [];
+
+        const params = [req.user.id];
 
         if (blockId) {
             sql += ' AND r.block_id = ?';
@@ -697,8 +686,7 @@ const getAvailableRooms = async (req, res) => {
         return sendSuccess(res, 'Available rooms retrieved successfully', rooms);
 
     } catch (error) {
-        console.error('Get Available Rooms Error:', error);
-        return sendError(res, 'Failed to retrieve available rooms', 500);
+        return next(error);
     }
 };
 
@@ -706,7 +694,7 @@ const getAvailableRooms = async (req, res) => {
  * Get hostel blocks list
  * GET /api/students/blocks
  */
-const getBlocks = async (req, res) => {
+const getBlocks = async (req, res, next) => {
     try {
         const blocks = await query(
             `SELECT id, block_name, block_code, gender_type, description, total_floors
@@ -718,8 +706,82 @@ const getBlocks = async (req, res) => {
         return sendSuccess(res, 'Hostel blocks retrieved successfully', blocks);
 
     } catch (error) {
-        console.error('Get Blocks Error:', error);
-        return sendError(res, 'Failed to retrieve hostel blocks', 500);
+        return next(error);
+    }
+};
+
+// =====================================================
+// Fees & Complaints
+// =====================================================
+
+/**
+ * Get the student's fee payments and totals
+ * GET /api/students/payments
+ */
+const getMyPayments = async (req, res, next) => {
+    try {
+        const studentId = req.user.id;
+        const payments = await query(
+            `SELECT p.id, p.amount, p.payment_type, p.payment_method, p.transaction_id, p.payment_date,
+                    p.month_year, p.status, p.remarks, r.room_number, hb.block_code
+             FROM payments p
+             JOIN room_allocations ra ON p.allocation_id = ra.id
+             JOIN rooms r ON ra.room_id = r.id
+             JOIN hostel_blocks hb ON r.block_id = hb.id
+             WHERE p.student_id = ?
+             ORDER BY p.payment_date DESC, p.id DESC`,
+            [studentId]
+        );
+        const [summary] = await query(
+            `SELECT COALESCE(SUM(amount) FILTER (WHERE status = 'completed'), 0) AS total_paid,
+                    COALESCE(SUM(amount) FILTER (WHERE status = 'pending'), 0) AS total_due,
+                    COUNT(*) FILTER (WHERE status = 'pending') AS pending_count
+             FROM payments WHERE student_id = ?`,
+            [studentId]
+        );
+        return sendSuccess(res, 'Payments retrieved successfully', { payments, summary });
+    } catch (error) {
+        return next(error);
+    }
+};
+
+/**
+ * List the student's complaints
+ * GET /api/students/complaints
+ */
+const getMyComplaints = async (req, res, next) => {
+    try {
+        const complaints = await query(
+            `SELECT c.*, r.room_number, hb.block_code
+             FROM complaints c
+             LEFT JOIN rooms r ON c.room_id = r.id
+             LEFT JOIN hostel_blocks hb ON r.block_id = hb.id
+             WHERE c.student_id = ?
+             ORDER BY c.created_at DESC`,
+            [req.user.id]
+        );
+        return sendSuccess(res, 'Complaints retrieved successfully', complaints);
+    } catch (error) {
+        return next(error);
+    }
+};
+
+/**
+ * Raise a maintenance complaint, linked to the student's current room if any
+ * POST /api/students/complaints
+ */
+const createComplaint = async (req, res, next) => {
+    try {
+        const { category, title, description, priority } = req.body;
+        const [complaint] = await query(
+            `INSERT INTO complaints (student_id, room_id, category, title, description, priority)
+             VALUES (?, (SELECT room_id FROM room_allocations WHERE student_id = ? AND allocation_status = 'active'), ?, ?, ?, ?)
+             RETURNING *`,
+            [req.user.id, req.user.id, category, title, description, priority || 'medium']
+        );
+        return sendSuccess(res, 'Complaint submitted successfully', complaint, 201);
+    } catch (error) {
+        return next(error);
     }
 };
 
@@ -748,5 +810,10 @@ module.exports = {
     // Dashboard
     getDashboard,
     getAvailableRooms,
-    getBlocks
+    getBlocks,
+
+    // Fees & complaints
+    getMyPayments,
+    getMyComplaints,
+    createComplaint
 };

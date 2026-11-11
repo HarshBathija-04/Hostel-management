@@ -1,36 +1,35 @@
 {
   "name": "hostel-room-allotment-system",
-  "version": "1.0.0",
-  "description": "Hostel Room Allotment System - Complete web application for managing hostel room allocations",
-  "main": "backend/server.js",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Hostel Room Allotment System - React frontend + Express/PostgreSQL API",
   "scripts": {
-    "install:backend": "cd backend && npm install",
-    "install:all": "npm run install:backend",
-    "start": "cd backend && npm start",
-    "dev": "cd backend && npm run dev",
+    "install:backend": "npm --prefix backend install",
+    "install:frontend": "npm --prefix frontend install",
+    "install:all": "npm run install:backend && npm run install:frontend",
     "setup:db": "node scripts/setup-database.js",
-    "test": "cd backend && npm test",
-    "lint": "cd backend && npx eslint ."
+    "dev": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "start": "npm --prefix backend start",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix backend run lint && npm --prefix frontend run lint",
+    "test": "npm --prefix backend test && npm --prefix frontend test",
+    "format": "npx --yes prettier@3.6.2 --write \"frontend/src/**/*.{ts,tsx,css}\" \"backend/**/*.js\" --ignore-path .gitignore"
   },
   "keywords": [
     "hostel",
     "room-allotment",
-    "student-management",
     "express",
-    "mysql",
-    "bootstrap"
+    "postgresql",
+    "react"
   ],
-  "author": "Hostel Management Team",
+  "author": "Harsh Bathija",
   "license": "MIT",
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=20"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/hostel-room-allotment-system.git"
-  },
-  "bugs": {
-    "url": "https://github.com/yourusername/hostel-room-allotment-system/issues"
-  },
-  "homepage": "https://github.com/yourusername/hostel-room-allotment-system#readme"
+    "url": "https://github.com/HarshBathija-04/Hostel-management.git"
+  }
 }

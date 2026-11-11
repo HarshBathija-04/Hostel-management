@@ -19,6 +19,13 @@ const {
     blockCreateValidation,
     applicationUpdateValidation,
     allocationCreateValidation,
+    adminStudentUpdateValidation,
+    blockUpdateValidation,
+    allocationUpdateValidation,
+    terminateValidation,
+    paymentCreateValidation,
+    paymentCompleteValidation,
+    complaintUpdateValidation,
     idParamValidation,
     paginationValidation
 } = require('../middleware/validation');
@@ -97,7 +104,7 @@ router.get('/students/:id', idParamValidation, adminController.getStudentById);
  * @desc    Update student
  * @access  Private (Admin)
  */
-router.put('/students/:id', idParamValidation, adminController.updateStudent);
+router.put('/students/:id', idParamValidation, adminStudentUpdateValidation, adminController.updateStudent);
 
 /**
  * @route   DELETE /api/admin/students/:id
@@ -129,7 +136,7 @@ router.post('/blocks', blockCreateValidation, adminController.createBlock);
  * @desc    Update hostel block
  * @access  Private (Admin)
  */
-router.put('/blocks/:id', idParamValidation, adminController.updateBlock);
+router.put('/blocks/:id', idParamValidation, blockUpdateValidation, adminController.updateBlock);
 
 /**
  * @route   DELETE /api/admin/blocks/:id
@@ -218,14 +225,14 @@ router.post('/allocations', allocationCreateValidation, adminController.createAl
  * @desc    Update allocation
  * @access  Private (Admin)
  */
-router.put('/allocations/:id', idParamValidation, adminController.updateAllocation);
+router.put('/allocations/:id', idParamValidation, allocationUpdateValidation, adminController.updateAllocation);
 
 /**
  * @route   PUT /api/admin/allocations/:id/terminate
  * @desc    Terminate allocation
  * @access  Private (Admin)
  */
-router.put('/allocations/:id/terminate', idParamValidation, adminController.terminateAllocation);
+router.put('/allocations/:id/terminate', idParamValidation, terminateValidation, adminController.terminateAllocation);
 
 // --------------------
 // Report Routes
@@ -236,7 +243,7 @@ router.put('/allocations/:id/terminate', idParamValidation, adminController.term
  * @desc    Get occupancy report
  * @access  Private (Admin)
  */
-router.get('/reports/occupancy', adminController.getOccupancyReport);
+router.get('/reports/occupancy', paginationValidation, adminController.getOccupancyReport);
 
 /**
  * @route   GET /api/admin/reports/students
@@ -244,6 +251,16 @@ router.get('/reports/occupancy', adminController.getOccupancyReport);
  * @access  Private (Admin)
  */
 router.get('/reports/students', adminController.getStudentStatistics);
+
+// --------------------
+// Fee & Complaint Routes
+// --------------------
+
+router.get('/payments', paginationValidation, adminController.getAllPayments);
+router.post('/payments', paymentCreateValidation, adminController.recordPayment);
+router.put('/payments/:id/complete', idParamValidation, paymentCompleteValidation, adminController.completePayment);
+router.get('/complaints', paginationValidation, adminController.getAllComplaints);
+router.put('/complaints/:id', idParamValidation, complaintUpdateValidation, adminController.updateComplaint);
 
 // =====================================================
 // Export Router

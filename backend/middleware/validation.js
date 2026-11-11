@@ -20,8 +20,7 @@ const handleValidationErrors = (req, res, next) => {
             message: 'Validation failed',
             errors: errors.array().map(error => ({
                 field: error.path,
-                message: error.msg,
-                value: error.value
+                message: error.msg
             }))
         });
     }
@@ -44,7 +43,7 @@ const studentRegistrationValidation = [
         .trim()
         .notEmpty().withMessage('Email is required')
         .isEmail().withMessage('Invalid email format')
-        .normalizeEmail(),
+        .toLowerCase(),
     
     body('password')
         .notEmpty().withMessage('Password is required')
@@ -194,7 +193,7 @@ const adminCreateValidation = [
         .trim()
         .notEmpty().withMessage('Email is required')
         .isEmail().withMessage('Invalid email format')
-        .normalizeEmail(),
+        .toLowerCase(),
     
     body('fullName')
         .trim()
@@ -368,8 +367,8 @@ const applicationCreateValidation = [
 const applicationUpdateValidation = [
     body('status')
         .notEmpty().withMessage('Status is required')
-        .isIn(['pending', 'approved', 'rejected', 'waitlisted', 'cancelled']).withMessage('Invalid status'),
-    
+        .isIn(['approved', 'rejected', 'waitlisted']).withMessage('Status must be approved, rejected or waitlisted'),
+
     body('adminRemarks')
         .optional()
         .trim()
@@ -414,7 +413,7 @@ const allocationCreateValidation = [
         }),
     
     body('rentAmount')
-        .notEmpty().withMessage('Rent amount is required')
+        .optional()
         .isDecimal({ decimal_digits: '0,2' }).withMessage('Rent amount must be a valid decimal'),
     
     body('securityDeposit')
@@ -456,11 +455,122 @@ const paginationValidation = [
     query('sortOrder')
         .optional()
         .isIn(['asc', 'desc']).withMessage('Sort order must be asc or desc'),
-    
+
+    query(['blockId', 'roomId', 'studentId', 'year'])
+        .optional()
+        .isInt({ min: 1 }).withMessage('Must be a positive integer'),
+
+    query(['status', 'roomType', 'gender', 'category'])
+        .optional()
+        .matches(/^[a-z_]{1,20}$/).withMessage('Invalid filter value'),
+
+    query('course')
+        .optional()
+        .trim()
+        .isLength({ max: 100 }).withMessage('Course must not exceed 100 characters'),
+
+    handleValidationErrors
+];
+
+const optionalText = (field, max) => body(field).optional({ values: 'null' }).trim().isLength({ max })
+    .withMessage(`${field} must not exceed ${max} characters`);
+const optionalPhone = (field) => body(field).optional({ values: 'falsy' }).trim().matches(/^[0-9]{10,15}$/)
+    .withMessage(`${field} must be 10-15 digits`);
+
+const changePasswordValidation = [
+    body('currentPassword').notEmpty().withMessage('Current password is required'),
+    body('newPassword')
+        .isLength({ min: 8, max: 72 }).withMessage('New password must be 8-72 characters')
+        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/).withMessage('New password needs an uppercase letter, a lowercase letter and a number'),
+    handleValidationErrors
+];
+
+const adminStudentUpdateValidation = [
+    body(['firstName', 'lastName']).optional().trim().isLength({ min: 2, max: 50 }).withMessage('Names must be 2-50 characters'),
+    optionalPhone('phone'),
+    optionalPhone('emergencyContactPhone'),
+    optionalText('address', 500),
+    optionalText('course', 100),
+    optionalText('department', 100),
+    optionalText('emergencyContactName', 100),
+    body('yearOfStudy').optional().isInt({ min: 1, max: 6 }).withMessage('Year of study must be between 1 and 6').toInt(),
+    body('isActive').optional().isBoolean().withMessage('isActive must be true or false').toBoolean(),
+    handleValidationErrors
+];
+
+const blockUpdateValidation = [
+    body('blockName').optional().trim().notEmpty().isLength({ max: 50 }).withMessage('Block name must be 1-50 characters'),
+    body('genderType').optional().isIn(['male', 'female', 'mixed']).withMessage('Gender type must be male, female, or mixed'),
+    optionalText('description', 500),
+    body('totalFloors').optional().isInt({ min: 1, max: 20 }).withMessage('Total floors must be between 1 and 20').toInt(),
+    optionalText('wardenName', 100),
+    optionalPhone('wardenContact'),
+    body('isActive').optional().isBoolean().withMessage('isActive must be true or false').toBoolean(),
+    handleValidationErrors
+];
+
+const allocationUpdateValidation = [
+    body('endDate').optional().isISO8601().withMessage('Invalid date format'),
+    body('rentAmount').optional().isDecimal({ decimal_digits: '0,2' }).withMessage('Rent amount must be a valid decimal'),
+    body('paymentStatus').optional().isIn(['pending', 'partial', 'paid', 'refunded']).withMessage('Invalid payment status'),
+    body('allocationStatus').optional().isIn(['active', 'expired', 'terminated', 'extended']).withMessage('Invalid allocation status'),
+    optionalText('terminationReason', 500),
+    handleValidationErrors
+];
+
+const terminateValidation = [optionalText('reason', 500), handleValidationErrors];
+
+const paymentCreateValidation = [
+    body('allocationId').isInt({ min: 1 }).withMessage('Allocation ID must be a positive integer').toInt(),
+    body('amount').isFloat({ gt: 0, max: 1000000 }).withMessage('Amount must be greater than 0').toFloat(),
+    body('paymentType').optional().isIn(['rent', 'security_deposit', 'fine', 'other']).withMessage('Invalid payment type'),
+    body('paymentMethod').isIn(['cash', 'card', 'bank_transfer', 'online']).withMessage('Invalid payment method'),
+    body('monthYear').optional({ values: 'falsy' }).matches(/^\d{4}-(0[1-9]|1[0-2])$/).withMessage('Month must be YYYY-MM'),
+    optionalText('transactionId', 100),
+    optionalText('remarks', 500),
+    handleValidationErrors
+];
+
+const paymentCompleteValidation = [
+    body('paymentMethod').optional().isIn(['cash', 'card', 'bank_transfer', 'online']).withMessage('Invalid payment method'),
+    optionalText('transactionId', 100),
+    handleValidationErrors
+];
+
+const COMPLAINT_CATEGORIES = ['electrical', 'plumbing', 'furniture', 'cleaning', 'internet', 'other'];
+
+const complaintCreateValidation = [
+    body('category').isIn(COMPLAINT_CATEGORIES).withMessage('Invalid category'),
+    body('title').trim().isLength({ min: 3, max: 120 }).withMessage('Title must be 3-120 characters'),
+    body('description').trim().isLength({ min: 10, max: 2000 }).withMessage('Description must be 10-2000 characters'),
+    body('priority').optional().isIn(['low', 'medium', 'high']).withMessage('Priority must be low, medium or high'),
+    handleValidationErrors
+];
+
+const complaintUpdateValidation = [
+    body('status').optional().isIn(['open', 'in_progress', 'resolved', 'closed']).withMessage('Invalid status'),
+    body('priority').optional().isIn(['low', 'medium', 'high']).withMessage('Priority must be low, medium or high'),
+    optionalText('adminResponse', 1000),
+    handleValidationErrors
+];
+
+const availableRoomsValidation = [
+    query('blockId').optional().isInt({ min: 1 }).withMessage('Block ID must be a positive integer'),
+    query('roomType').optional().isIn(['single', 'double', 'triple', 'quad']).withMessage('Invalid room type'),
     handleValidationErrors
 ];
 
 module.exports = {
+    changePasswordValidation,
+    adminStudentUpdateValidation,
+    blockUpdateValidation,
+    allocationUpdateValidation,
+    terminateValidation,
+    paymentCreateValidation,
+    paymentCompleteValidation,
+    complaintCreateValidation,
+    complaintUpdateValidation,
+    availableRoomsValidation,
     handleValidationErrors,
     studentRegistrationValidation,
     studentLoginValidation,

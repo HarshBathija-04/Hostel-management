@@ -16,6 +16,9 @@ const {
     studentLoginValidation,
     studentUpdateValidation,
     applicationCreateValidation,
+    changePasswordValidation,
+    availableRoomsValidation,
+    complaintCreateValidation,
     idParamValidation
 } = require('../middleware/validation');
 
@@ -67,7 +70,7 @@ router.put('/profile', studentUpdateValidation, studentController.updateProfile)
  * @desc    Change student password
  * @access  Private (Student)
  */
-router.put('/change-password', studentController.changePassword);
+router.put('/change-password', changePasswordValidation, studentController.changePassword);
 
 // --------------------
 // Application Routes
@@ -135,7 +138,7 @@ router.get('/dashboard', studentController.getDashboard);
  * @desc    Get available rooms
  * @access  Private (Student)
  */
-router.get('/available-rooms', studentController.getAvailableRooms);
+router.get('/available-rooms', availableRoomsValidation, studentController.getAvailableRooms);
 
 /**
  * @route   GET /api/students/blocks
@@ -143,6 +146,14 @@ router.get('/available-rooms', studentController.getAvailableRooms);
  * @access  Private (Student)
  */
 router.get('/blocks', studentController.getBlocks);
+
+// --------------------
+// Fees & Complaints
+// --------------------
+
+router.get('/payments', studentController.getMyPayments);
+router.get('/complaints', studentController.getMyComplaints);
+router.post('/complaints', complaintCreateValidation, studentController.createComplaint);
 
 // =====================================================
 // Export Router
