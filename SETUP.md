@@ -1,6 +1,6 @@
 # Quick setup
 
-The full guide is in [README.md](README.md#local-setup). Short version:
+The full guide is in [README.md](README.md#quick-start). Short version:
 
 ```bash
 npm run install:all
