@@ -43,17 +43,12 @@ const register = async (req, res) => {
             student_id, email, password, first_name, last_name,
             date_of_birth, gender, phone, address, course,
             department, year_of_study, emergency_contact_name, emergency_contact_phone
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id, student_id, email, first_name, last_name, gender, course, year_of_study, created_at`,
         [
             studentId, email, hashedPassword, firstName, lastName,
             dateOfBirth || null, gender, phone || null, address || null, course,
             department || null, yearOfStudy, emergencyContactName || null, emergencyContactPhone || null
         ]
-    );
-    const newStudent = await query(
-        `SELECT id, student_id, email, first_name, last_name, gender, course, year_of_study, created_at
-         FROM students WHERE id = ?`,
-        [result[0].id]
     );
     const tokens = generateTokens({
         id: result[0].id,
@@ -62,7 +57,7 @@ const register = async (req, res) => {
         role: null
     });
     return sendSuccess(res, 'Student registered successfully', {
-        student: newStudent[0],
+        student: result[0],
         ...tokens
     }, 201);
 };

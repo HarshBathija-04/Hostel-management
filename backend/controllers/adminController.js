@@ -74,15 +74,10 @@ const createAdmin = async (req, res) => {
     const hashedPassword = await hashPassword(password);
     const result = await query(
         `INSERT INTO admin (username, password, email, full_name, phone, role)
-         VALUES (?, ?, ?, ?, ?, ?) RETURNING id`,
+         VALUES (?, ?, ?, ?, ?, ?) RETURNING id, username, email, full_name, phone, role, is_active, created_at`,
         [username, hashedPassword, email, fullName, phone || null, role || 'admin']
     );
-    const newAdmin = await query(
-        `SELECT id, username, email, full_name, phone, role, is_active, created_at
-         FROM admin WHERE id = ?`,
-        [result[0].id]
-    );
-    return sendSuccess(res, 'Admin created successfully', newAdmin[0], 201);
+    return sendSuccess(res, 'Admin created successfully', result[0], 201);
 };
 
 const getDashboard = async (req, res) => {
@@ -135,7 +130,8 @@ const getDashboard = async (req, res) => {
          FROM hostel_blocks hb
          LEFT JOIN rooms r ON hb.id = r.block_id AND r.is_active = TRUE
          WHERE hb.is_active = TRUE
-         GROUP BY hb.id, hb.block_name`
+         GROUP BY hb.id, hb.block_name
+         ORDER BY hb.block_name`
     );
     const [extra] = await query(
         `SELECT
@@ -308,14 +304,10 @@ const createBlock = async (req, res) => {
     const result = await query(
         `INSERT INTO hostel_blocks (block_name, block_code, gender_type, description,
                                    total_floors, warden_name, warden_contact)
-         VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+         VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *`,
         [blockName, blockCode, genderType, description || null, totalFloors || 1, wardenName || null, wardenContact || null]
     );
-    const newBlock = await query(
-        'SELECT * FROM hostel_blocks WHERE id = ?',
-        [result[0].id]
-    );
-    return sendSuccess(res, 'Hostel block created successfully', newBlock[0], 201);
+    return sendSuccess(res, 'Hostel block created successfully', result[0], 201);
 };
 
 const updateBlock = async (req, res) => {
