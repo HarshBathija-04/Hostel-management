@@ -41,8 +41,31 @@ const getPaginationParams = (req) => {
     return { page, limit, offset: (page - 1) * limit };
 };
 
+/** Build a WHERE clause from [sql, value] filters, skipping filters with an empty value. */
+const buildWhere = (filters) => {
+    const active = filters.filter(([, value]) => value);
+    return {
+        whereClause: `WHERE TRUE${active.map(([sql]) => ` AND ${sql}`).join('')}`,
+        params: active.flatMap(([sql, value]) => sql.match(/\?/g).map(() => value))
+    };
+};
+
+/** Build "column = ?" assignments for the listed camelCase body fields that are present. */
+const buildSet = (body, fields) => {
+    const keys = fields.filter((key) => body[key] !== undefined);
+    return {
+        setClause: keys.map((key) => `${key.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`)} = ?`).join(', '),
+        values: keys.map((key) => body[key])
+    };
+};
+
 // DEMO_MODE=true protects the shared demo login from being locked out by visitors.
 const isDemoAccount = (studentCode) => process.env.DEMO_MODE === 'true' && studentCode === 'STU2024001';
+
+// Express 4 does not forward rejected promises; route every async handler's errors to next().
+const catchErrors = (handlers) => Object.fromEntries(
+    Object.entries(handlers).map(([name, fn]) => [name, (req, res, next) => fn(req, res, next).catch(next)])
+);
 
 const omit = (obj, keys) => Object.fromEntries(Object.entries(obj).filter(([key]) => !keys.includes(key)));
 
@@ -55,5 +78,8 @@ module.exports = {
     createPagination,
     getPaginationParams,
     omit,
-    isDemoAccount
+    isDemoAccount,
+    buildWhere,
+    buildSet,
+    catchErrors
 };
