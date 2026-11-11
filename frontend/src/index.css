@@ -58,6 +58,10 @@
     outline: 2px solid var(--color-brand-500);
     outline-offset: 2px;
   }
+  /* brand-500 is under 3:1 on the dark sidebar; use a light ring there. */
+  .on-dark :focus-visible {
+    outline-color: var(--color-brand-200);
+  }
   .tabular {
     font-variant-numeric: tabular-nums;
   }

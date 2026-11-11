@@ -143,7 +143,7 @@ export function BedPips({ capacity, occupied, size = 'md' }: { capacity: number;
 /* ---------- Forms ---------- */
 
 export const inputCls =
-  'block w-full min-h-11 rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted/70 ' +
+  'block w-full min-h-11 rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted' +
   'transition-[border-color,box-shadow] focus:border-brand-500 focus:ring-2 focus:ring-brand-200 focus:outline-none ' +
   'aria-[invalid=true]:border-danger-600 disabled:bg-sunken';
 

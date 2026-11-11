@@ -112,13 +112,19 @@ export function AppShell() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const location = useLocation();
   useEffect(() => setDrawerOpen(false), [location.pathname]);
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setDrawerOpen(false);
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [drawerOpen]);
 
   return (
     <div className="min-h-dvh lg:pl-64">
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2 focus:shadow-pop">
         Skip to content
       </a>
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 bg-brand-900 lg:block">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 bg-brand-900 on-dark lg:block">
         <SidebarContent />
       </aside>
 
@@ -138,7 +144,7 @@ export function AppShell() {
       {drawerOpen && (
         <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation">
           <button type="button" className="absolute inset-0 bg-ink/40" aria-label="Close navigation" onClick={() => setDrawerOpen(false)} />
-          <div className="absolute inset-y-0 left-0 w-72 max-w-[85vw] bg-brand-900 shadow-pop">
+          <div className="absolute inset-y-0 left-0 w-72 max-w-[85vw] bg-brand-900 on-dark shadow-pop">
             <button
               type="button"
               onClick={() => setDrawerOpen(false)}
