@@ -81,18 +81,6 @@ const createAdmin = async (req, res) => {
 };
 
 const getDashboard = async (req, res) => {
-    const studentCount = await query(
-        'SELECT COUNT(*) as total FROM students WHERE is_active = TRUE'
-    );
-    const roomCount = await query(
-        'SELECT COUNT(*) as total FROM rooms WHERE is_active = TRUE'
-    );
-    const allocationCount = await query(
-        `SELECT COUNT(*) as total FROM room_allocations WHERE allocation_status = 'active'`
-    );
-    const pendingApplications = await query(
-        `SELECT COUNT(*) as total FROM room_applications WHERE status = 'pending'`
-    );
     const roomSummary = await query(
         `SELECT
             SUM(capacity) as total_capacity,
@@ -135,6 +123,10 @@ const getDashboard = async (req, res) => {
     );
     const [extra] = await query(
         `SELECT
+            (SELECT COUNT(*) FROM students WHERE is_active = TRUE) AS total_students,
+            (SELECT COUNT(*) FROM rooms WHERE is_active = TRUE) AS total_rooms,
+            (SELECT COUNT(*) FROM room_allocations WHERE allocation_status = 'active') AS active_allocations,
+            (SELECT COUNT(*) FROM room_applications WHERE status = 'pending') AS pending_applications,
             (SELECT COUNT(*) FROM complaints WHERE status IN ('open', 'in_progress')) AS open_complaints,
             (SELECT COALESCE(SUM(amount), 0) FROM payments WHERE status = 'completed'
                 AND date_trunc('month', payment_date) = date_trunc('month', NOW())) AS collected_this_month,
@@ -142,10 +134,10 @@ const getDashboard = async (req, res) => {
     );
     return sendSuccess(res, 'Dashboard data retrieved successfully', {
         statistics: {
-            totalStudents: studentCount[0].total,
-            totalRooms: roomCount[0].total,
-            activeAllocations: allocationCount[0].total,
-            pendingApplications: pendingApplications[0].total,
+            totalStudents: extra.total_students,
+            totalRooms: extra.total_rooms,
+            activeAllocations: extra.active_allocations,
+            pendingApplications: extra.pending_applications,
             openComplaints: extra.open_complaints,
             collectedThisMonth: extra.collected_this_month,
             pendingDues: extra.pending_dues
