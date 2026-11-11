@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { KeyRound, Phone, UserRound } from 'lucide-react';
 import { Card, CardHeader, DataTable, EmptyState, ErrorState, PageHeader, Skeleton, StatusBadge, buttonCls, cx, linkCls } from '../../components/ui';
-import { api, errorMessage } from '../../lib/api';
+import { api } from '../../lib/api';
 import { date, label, money } from '../../lib/format';
 import type { Allocation } from '../../lib/types';
 
@@ -19,7 +19,7 @@ export default function MyRoom() {
     queryFn: () => api<{ allocations: Allocation[] }>('/api/students/allocation-history?limit=20'),
   });
 
-  if (current.isError) return <Card><ErrorState message={errorMessage(current.error)} onRetry={() => current.refetch()} /></Card>;
+  if (current.isError) return <Card><ErrorState error={current.error} onRetry={() => current.refetch()} /></Card>;
 
   const a = current.data?.allocation;
   return (

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { CircleAlert, CreditCard, Wallet } from 'lucide-react';
 import { Card, CardHeader, DataTable, EmptyState, ErrorState, PageHeader, Skeleton, StatCard, StatusBadge } from '../../components/ui';
-import { api, errorMessage } from '../../lib/api';
+import { api } from '../../lib/api';
 import { date, label, money, monthLabel } from '../../lib/format';
 import type { Payment } from '../../lib/types';
 
@@ -10,7 +10,7 @@ export default function StudentFees() {
     queryKey: ['student', 'payments'],
     queryFn: () => api<{ payments: Payment[]; summary: { total_paid: number; total_due: number; pending_count: number } }>('/api/students/payments'),
   });
-  if (fees.isError) return <Card><ErrorState message={errorMessage(fees.error)} onRetry={() => fees.refetch()} /></Card>;
+  if (fees.isError) return <Card><ErrorState error={fees.error} onRetry={() => fees.refetch()} /></Card>;
   const s = fees.data?.summary;
 
   return (

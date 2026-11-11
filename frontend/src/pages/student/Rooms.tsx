@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { BedDouble } from 'lucide-react';
 import { ApplyModal } from '../../components/ApplyModal';
 import { BedPips, Button, Card, EmptyState, ErrorState, PageHeader, Segmented, Skeleton, inputCls } from '../../components/ui';
-import { api, errorMessage } from '../../lib/api';
+import { api } from '../../lib/api';
 import { label, money } from '../../lib/format';
 import type { Block, Room } from '../../lib/types';
 
@@ -41,7 +41,7 @@ export default function StudentRooms() {
       </div>
 
       {rooms.isError ? (
-        <Card><ErrorState message={errorMessage(rooms.error)} onRetry={() => rooms.refetch()} /></Card>
+        <Card><ErrorState error={rooms.error} onRetry={() => rooms.refetch()} /></Card>
       ) : rooms.isPending ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="h-52 rounded-card" />)}</div>
       ) : rooms.data.length === 0 ? (

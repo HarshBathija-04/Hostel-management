@@ -2,8 +2,8 @@ import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Building2, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { BedPips, Button, Card, EmptyState, ErrorState, Field, Modal, PageHeader, Segmented, Skeleton, StatusBadge, cx, inputCls } from '../../components/ui';
-import { api, ApiError, errorMessage } from '../../lib/api';
+import { BedPips, Button, Card, EmptyState, ErrorState, Field, FormError, Modal, PageHeader, Segmented, Skeleton, StatusBadge, cx, inputCls } from '../../components/ui';
+import { api, ApiError } from '../../lib/api';
 import { date, label, money, percent } from '../../lib/format';
 import type { Block, Room, RoomStatus } from '../../lib/types';
 
@@ -64,7 +64,7 @@ export default function AdminRooms() {
       </div>
 
       {rooms.isError ? (
-        <Card><ErrorState message={errorMessage(rooms.error)} onRetry={() => rooms.refetch()} /></Card>
+        <Card><ErrorState error={rooms.error} onRetry={() => rooms.refetch()} /></Card>
       ) : rooms.isPending || blocks.isPending ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">{Array.from({ length: 12 }, (_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}</div>
       ) : grouped.length === 0 ? (
@@ -226,7 +226,7 @@ function AddRoomModal({ blocks, onClose }: { blocks: Block[]; onClose: () => voi
         <Field label="Beds" error={errors.capacity}>{(p) => <input {...p} type="number" min={1} max={10} className={inputCls} value={form.capacity} onChange={set('capacity')} />}</Field>
         <Field label="Monthly rent (₹)" error={errors.monthlyRent}>{(p) => <input {...p} type="number" min={0} step={100} className={inputCls} value={form.monthlyRent} onChange={set('monthlyRent')} />}</Field>
         <Field label="Facilities" error={errors.facilities}>{(p) => <input {...p} className={inputCls} value={form.facilities} onChange={set('facilities')} />}</Field>
-        {create.error && Object.keys(errors).length === 0 && <p role="alert" className="text-sm text-danger-700 sm:col-span-2">{create.error.message}</p>}
+        <FormError error={create.error} className="sm:col-span-2" />
       </form>
     </Modal>
   );
@@ -258,7 +258,7 @@ function AddBlockModal({ onClose }: { onClose: () => void }) {
         <Field label="Warden name" error={errors.wardenName}>{(p) => <input {...p} className={inputCls} value={form.wardenName} onChange={set('wardenName')} />}</Field>
         <Field label="Warden phone" error={errors.wardenContact}>{(p) => <input {...p} type="tel" inputMode="numeric" className={inputCls} value={form.wardenContact} onChange={set('wardenContact')} />}</Field>
         <Field label="Description" error={errors.description} className="sm:col-span-2">{(p) => <input {...p} className={inputCls} value={form.description} onChange={set('description')} />}</Field>
-        {create.error && Object.keys(errors).length === 0 && <p role="alert" className="text-sm text-danger-700 sm:col-span-2">{create.error.message}</p>}
+        <FormError error={create.error} className="sm:col-span-2" />
       </form>
     </Modal>
   );

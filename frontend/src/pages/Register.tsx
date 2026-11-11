@@ -3,7 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { PublicShell } from '../components/Layout';
-import { Button, Card, Field, inputCls, linkCls } from '../components/ui';
+import { Button, Card, Field, FormError, inputCls, linkCls } from '../components/ui';
 import { api, ApiError } from '../lib/api';
 import { useAuth } from '../lib/auth';
 
@@ -87,9 +87,7 @@ export default function Register() {
               {(p) => <input {...p} type="tel" inputMode="numeric" className={inputCls} value={form.phone} onChange={set('phone')} autoComplete="tel" />}
             </Field>
 
-            {register.error && Object.keys(errors).length === 0 && (
-              <p role="alert" className="rounded-lg bg-danger-100 px-3 py-2 text-sm text-danger-700 sm:col-span-2">{register.error.message}</p>
-            )}
+            <FormError error={register.error} className="sm:col-span-2" />
             <div className="flex flex-wrap items-center justify-between gap-3 sm:col-span-2">
               <p className="text-sm text-muted">
                 Already registered? <Link to="/login" className={linkCls}>Sign in</Link>

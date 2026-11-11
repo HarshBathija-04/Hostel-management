@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { AlertTriangle, Inbox, Loader2, X } from 'lucide-react';
+import { ApiError, errorMessage } from '../lib/api';
 import { label as toLabel } from '../lib/format';
 import type { Pagination as PaginationInfo } from '../lib/types';
 
@@ -210,20 +211,30 @@ export function EmptyState({ title, description, action, icon }: { title: string
   );
 }
 
-export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
+export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
   return (
     <div role="alert" className="flex flex-col items-center px-6 py-12 text-center">
       <span className="grid size-12 place-items-center rounded-full bg-danger-100 text-danger-700" aria-hidden>
         <AlertTriangle className="size-5" />
       </span>
       <h3 className="mt-4 font-semibold">Couldn’t load this</h3>
-      <p className="mt-1 max-w-sm text-sm text-muted">{message}</p>
+      <p className="mt-1 max-w-sm text-sm text-muted">{errorMessage(error)}</p>
       {onRetry && (
         <Button variant="secondary" size="sm" className="mt-5" onClick={onRetry}>
           Try again
         </Button>
       )}
     </div>
+  );
+}
+
+/** Form-level error, shown only when the server gave no per-field errors to display inline. */
+export function FormError({ error, className }: { error: Error | null; className?: string }) {
+  if (!error || (error instanceof ApiError && Object.keys(error.fieldErrors).length > 0)) return null;
+  return (
+    <p role="alert" className={cx('rounded-lg bg-danger-100 px-3 py-2 text-sm text-danger-700', className)}>
+      {error.message}
+    </p>
   );
 }
 

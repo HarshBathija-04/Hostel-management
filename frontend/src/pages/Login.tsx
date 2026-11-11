@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Info } from 'lucide-react';
 import { PublicShell } from '../components/Layout';
-import { Button, Card, Field, inputCls, linkCls } from '../components/ui';
+import { Button, Card, Field, FormError, inputCls, linkCls } from '../components/ui';
 import { api, ApiError } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import type { Role, SessionUser } from '../lib/types';
@@ -77,11 +77,7 @@ export default function Login({ role }: { role: Role }) {
             <Field label="Password" error={fieldErrors.password}>
               {(p) => <input {...p} type="password" className={inputCls} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />}
             </Field>
-            {login.error && Object.keys(fieldErrors).length === 0 && (
-              <p role="alert" className="rounded-lg bg-danger-100 px-3 py-2 text-sm text-danger-700">
-                {login.error.message}
-              </p>
-            )}
+            <FormError error={login.error} />
             <Button type="submit" className="w-full" loading={login.isPending}>
               Sign in
             </Button>

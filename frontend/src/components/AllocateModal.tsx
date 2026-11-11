@@ -1,7 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { BedPips, Button, Field, Modal, inputCls } from './ui';
+import { BedPips, Button, Field, FormError, Modal, inputCls } from './ui';
 import { api, ApiError } from '../lib/api';
 import { money, todayIso } from '../lib/format';
 import type { Room, Student } from '../lib/types';
@@ -106,7 +106,7 @@ export function AllocateModal({ open, onClose, target }: { open: boolean; onClos
         <Field label="Security deposit" error={errors.securityDeposit} hint="Defaults to two months’ rent" className="sm:col-span-2">
           {(p) => <input {...p} type="number" min={0} step={100} inputMode="numeric" className={inputCls} value={deposit} placeholder={room ? String(room.monthly_rent * 2) : ''} onChange={(e) => setDeposit(e.target.value)} />}
         </Field>
-        {allocate.error && Object.keys(errors).length === 0 && <p role="alert" className="rounded-lg bg-danger-100 px-3 py-2 text-sm text-danger-700 sm:col-span-2">{allocate.error.message}</p>}
+        <FormError error={allocate.error} className="sm:col-span-2" />
       </form>
     </Modal>
   );

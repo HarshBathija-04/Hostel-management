@@ -4,7 +4,7 @@ import { ClipboardList } from 'lucide-react';
 import { toast } from 'sonner';
 import { ApplyModal } from '../../components/ApplyModal';
 import { Button, Card, EmptyState, ErrorState, Modal, PageHeader, Skeleton, StatusBadge } from '../../components/ui';
-import { api, errorMessage } from '../../lib/api';
+import { api } from '../../lib/api';
 import { date, label } from '../../lib/format';
 import type { Application } from '../../lib/types';
 
@@ -34,7 +34,7 @@ export default function StudentApplications() {
       <PageHeader title="Applications" description="Track where your room request stands." actions={!hasOpen && !apps.isPending ? <Button onClick={() => setApplyOpen(true)}>New application</Button> : undefined} />
 
       {apps.isError ? (
-        <Card><ErrorState message={errorMessage(apps.error)} onRetry={() => apps.refetch()} /></Card>
+        <Card><ErrorState error={apps.error} onRetry={() => apps.refetch()} /></Card>
       ) : apps.isPending ? (
         <div className="space-y-4">{Array.from({ length: 2 }, (_, i) => <Skeleton key={i} className="h-36 rounded-card" />)}</div>
       ) : list.length === 0 ? (

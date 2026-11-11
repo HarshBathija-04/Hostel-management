@@ -4,7 +4,7 @@ import { ClipboardList } from 'lucide-react';
 import { toast } from 'sonner';
 import { AllocateModal } from '../../components/AllocateModal';
 import { Button, Card, DataTable, EmptyState, ErrorState, Field, Modal, PageHeader, Pager, Segmented, StatusBadge, inputCls } from '../../components/ui';
-import { api, errorMessage } from '../../lib/api';
+import { api } from '../../lib/api';
 import { date, label } from '../../lib/format';
 import type { Application, Pagination } from '../../lib/types';
 
@@ -49,7 +49,7 @@ export default function AdminApplications() {
       </div>
       <Card>
         {q.isError ? (
-          <ErrorState message={errorMessage(q.error)} onRetry={() => q.refetch()} />
+          <ErrorState error={q.error} onRetry={() => q.refetch()} />
         ) : (
           <DataTable<Row>
             caption="Room applications"

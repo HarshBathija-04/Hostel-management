@@ -2,7 +2,7 @@ import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, BedDouble, ClipboardList, CreditCard, Wrench } from 'lucide-react';
 import { Card, CardHeader, ErrorState, PageHeader, Skeleton, StatCard, StatusBadge, buttonCls, cx, linkCls } from '../../components/ui';
-import { api, errorMessage } from '../../lib/api';
+import { api } from '../../lib/api';
 import { date, label, money, monthLabel } from '../../lib/format';
 import type { Allocation, Application, Complaint, Payment } from '../../lib/types';
 
@@ -24,7 +24,7 @@ export default function StudentDashboard() {
   });
   const complaints = useQuery({ queryKey: ['student', 'complaints'], queryFn: () => api<Complaint[]>('/api/students/complaints') });
 
-  if (dash.isError) return <Card><ErrorState message={errorMessage(dash.error)} onRetry={() => dash.refetch()} /></Card>;
+  if (dash.isError) return <Card><ErrorState error={dash.error} onRetry={() => dash.refetch()} /></Card>;
 
   const d = dash.data;
   const latestApp = apps.data?.applications[0];

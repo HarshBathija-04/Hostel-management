@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Search, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge, Button, Card, DataTable, EmptyState, ErrorState, PageHeader, Pager, Segmented, inputCls } from '../../components/ui';
-import { api, errorMessage } from '../../lib/api';
+import { api } from '../../lib/api';
 import { label } from '../../lib/format';
 import type { Pagination, Student } from '../../lib/types';
 
@@ -47,7 +47,7 @@ export default function AdminStudents() {
       </div>
       <Card>
         {q.isError ? (
-          <ErrorState message={errorMessage(q.error)} onRetry={() => q.refetch()} />
+          <ErrorState error={q.error} onRetry={() => q.refetch()} />
         ) : (
           <DataTable
             caption="Students"

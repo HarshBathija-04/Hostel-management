@@ -2,8 +2,8 @@ import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { MessageSquareReply, Wrench } from 'lucide-react';
 import { toast } from 'sonner';
-import { Badge, Button, Card, EmptyState, ErrorState, Field, Modal, PageHeader, Skeleton, StatusBadge, inputCls } from '../../components/ui';
-import { api, ApiError, errorMessage } from '../../lib/api';
+import { Badge, Button, Card, EmptyState, ErrorState, Field, FormError, Modal, PageHeader, Skeleton, StatusBadge, inputCls } from '../../components/ui';
+import { api, ApiError } from '../../lib/api';
 import { date, label } from '../../lib/format';
 import type { Complaint } from '../../lib/types';
 
@@ -37,7 +37,7 @@ export default function StudentComplaints() {
       <PageHeader title="Complaints" description="Report maintenance issues in your room or block." actions={<Button onClick={() => { create.reset(); setOpen(true); }}>Raise a complaint</Button>} />
 
       {complaints.isError ? (
-        <Card><ErrorState message={errorMessage(complaints.error)} onRetry={() => complaints.refetch()} /></Card>
+        <Card><ErrorState error={complaints.error} onRetry={() => complaints.refetch()} /></Card>
       ) : complaints.isPending ? (
         <div className="space-y-4">{Array.from({ length: 3 }, (_, i) => <Skeleton key={i} className="h-28 rounded-card" />)}</div>
       ) : complaints.data.length === 0 ? (
@@ -89,7 +89,7 @@ export default function StudentComplaints() {
           <Field label="What’s wrong?" error={errors.description} hint="At least 10 characters" className="sm:col-span-2">
             {(p) => <textarea {...p} rows={4} className={inputCls} value={form.description} onChange={set('description')} maxLength={2000} placeholder="When did it start, and where exactly?" required />}
           </Field>
-          {create.error && Object.keys(errors).length === 0 && <p role="alert" className="text-sm text-danger-700 sm:col-span-2">{create.error.message}</p>}
+          <FormError error={create.error} className="sm:col-span-2" />
         </form>
       </Modal>
     </>

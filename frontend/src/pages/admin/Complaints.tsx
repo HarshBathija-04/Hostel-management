@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Wrench } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge, Button, Card, EmptyState, ErrorState, Field, Modal, PageHeader, Pager, Segmented, Skeleton, StatusBadge, inputCls } from '../../components/ui';
-import { api, errorMessage } from '../../lib/api';
+import { api } from '../../lib/api';
 import { date, label } from '../../lib/format';
 import type { Complaint, ComplaintStatus, Pagination } from '../../lib/types';
 
@@ -25,7 +25,7 @@ export default function AdminComplaints() {
         <Segmented<Filter> label="Filter by status" value={filter} onChange={(v) => { setFilter(v); setPage(1); }} options={(['open', 'in_progress', 'resolved', 'closed', 'all'] as const).map((v) => ({ value: v, label: label(v) }))} />
       </div>
       {q.isError ? (
-        <Card><ErrorState message={errorMessage(q.error)} onRetry={() => q.refetch()} /></Card>
+        <Card><ErrorState error={q.error} onRetry={() => q.refetch()} /></Card>
       ) : q.isPending ? (
         <div className="grid gap-4 md:grid-cols-2">{Array.from({ length: 4 }, (_, i) => <Skeleton key={i} className="h-40 rounded-card" />)}</div>
       ) : q.data.complaints.length === 0 ? (

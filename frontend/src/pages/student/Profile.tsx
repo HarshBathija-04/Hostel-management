@@ -1,8 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Button, Card, CardHeader, ErrorState, Field, PageHeader, Skeleton, inputCls } from '../../components/ui';
-import { api, ApiError, errorMessage } from '../../lib/api';
+import { Button, Card, CardHeader, ErrorState, Field, FormError, PageHeader, Skeleton, inputCls } from '../../components/ui';
+import { api, ApiError } from '../../lib/api';
 import type { Student } from '../../lib/types';
 
 type Editable = Record<'firstName' | 'lastName' | 'phone' | 'address' | 'emergencyContactName' | 'emergencyContactPhone', string>;
@@ -39,7 +39,7 @@ export default function Profile() {
     },
   });
 
-  if (profile.isError) return <Card><ErrorState message={errorMessage(profile.error)} onRetry={() => profile.refetch()} /></Card>;
+  if (profile.isError) return <Card><ErrorState error={profile.error} onRetry={() => profile.refetch()} /></Card>;
   const s = profile.data;
   const errors = save.error instanceof ApiError ? save.error.fieldErrors : {};
   const pwErrors = changePw.error instanceof ApiError ? changePw.error.fieldErrors : {};
@@ -84,7 +84,7 @@ export default function Profile() {
             <Field label="New password" error={pwErrors.newPassword} hint="8+ characters with upper, lower case and a number">
               {(p) => <input {...p} type="password" className={inputCls} value={pw.newPassword} onChange={(e) => setPw({ ...pw, newPassword: e.target.value })} autoComplete="new-password" />}
             </Field>
-            {changePw.error && Object.keys(pwErrors).length === 0 && <p role="alert" className="text-sm text-danger-700">{changePw.error.message}</p>}
+            <FormError error={changePw.error} />
             <Button type="submit" variant="secondary" className="w-full" loading={changePw.isPending}>Update password</Button>
           </form>
         </Card>

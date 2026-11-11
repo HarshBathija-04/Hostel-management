@@ -2,7 +2,7 @@ import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { BedDouble, ClipboardList, IndianRupee, Users, Wrench } from 'lucide-react';
 import { Card, CardHeader, EmptyState, ErrorState, PageHeader, Skeleton, StatCard, StatusBadge, cx, linkCls } from '../../components/ui';
-import { api, errorMessage } from '../../lib/api';
+import { api } from '../../lib/api';
 import { date, money, percent } from '../../lib/format';
 import type { Application } from '../../lib/types';
 
@@ -18,7 +18,7 @@ interface AdminDashboardData {
 
 export default function AdminDashboard() {
   const q = useQuery({ queryKey: ['admin', 'dashboard'], queryFn: () => api<AdminDashboardData>('/api/admin/dashboard') });
-  if (q.isError) return <Card><ErrorState message={errorMessage(q.error)} onRetry={() => q.refetch()} /></Card>;
+  if (q.isError) return <Card><ErrorState error={q.error} onRetry={() => q.refetch()} /></Card>;
   const d = q.data;
   const s = d?.statistics;
   const r = d?.roomSummary;

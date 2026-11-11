@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CircleAlert, CreditCard, Plus, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
-import { Button, Card, DataTable, EmptyState, ErrorState, Field, Modal, PageHeader, Pager, Segmented, Skeleton, StatCard, StatusBadge, inputCls } from '../../components/ui';
-import { api, ApiError, errorMessage } from '../../lib/api';
+import { Button, Card, DataTable, EmptyState, ErrorState, Field, FormError, Modal, PageHeader, Pager, Segmented, Skeleton, StatCard, StatusBadge, inputCls } from '../../components/ui';
+import { api, ApiError } from '../../lib/api';
 import { date, label, money, monthLabel } from '../../lib/format';
 import type { Allocation, Pagination, Payment } from '../../lib/types';
 
@@ -47,7 +47,7 @@ export default function AdminFees() {
       </div>
       <Card>
         {q.isError ? (
-          <ErrorState message={errorMessage(q.error)} onRetry={() => q.refetch()} />
+          <ErrorState error={q.error} onRetry={() => q.refetch()} />
         ) : (
           <DataTable
             caption="Fee payments"
@@ -123,7 +123,7 @@ function RecordPaymentModal({ onClose }: { onClose: () => void }) {
           <Field label="Reference (optional)" error={errors.transactionId}>{(p) => <input {...p} className={inputCls} value={form.transactionId} onChange={set('transactionId')} />}</Field>
         )}
         <Field label="Remarks (optional)" error={errors.remarks} className="sm:col-span-2">{(p) => <input {...p} className={inputCls} value={form.remarks} onChange={set('remarks')} maxLength={500} />}</Field>
-        {record.error && Object.keys(errors).length === 0 && <p role="alert" className="text-sm text-danger-700 sm:col-span-2">{record.error.message}</p>}
+        <FormError error={record.error} className="sm:col-span-2" />
       </form>
     </Modal>
   );
