@@ -68,6 +68,45 @@ const allocations = [
     ['STU2024013', 'INT', '103', 1]
 ];
 
+// Residents still owing this month's rent.
+const owing = new Set(['STU2024011', 'STU2024006']);
+
+// A generated cohort so the demo hostel is about half full: deterministic names, courses and beds.
+(function addCohort() {
+    const male = ['Ishaan', 'Dev', 'Nikhil', 'Pranav', 'Yash', 'Karan', 'Varun', 'Omkar', 'Harsh', 'Tanmay', 'Manav', 'Arnav', 'Rishi', 'Neel', 'Parth'];
+    const female = ['Diya', 'Riya', 'Aditi', 'Saanvi', 'Pooja', 'Tanvi', 'Nisha', 'Shreya', 'Aisha', 'Mansi', 'Zara', 'Lavanya', 'Bhavna', 'Kriti', 'Nandini'];
+    const surnames = ['Agarwal', 'Bose', 'Chawla', 'Dutta', 'Malhotra', 'Pillai', 'Saxena', 'Thakur', 'Bhatt', 'Kapoor', 'Sinha', 'Pandey', 'Chopra', 'Shetty', 'Kaur'];
+    const courses = [
+        ['B.Tech Computer Science', 'Engineering'], ['B.Tech Mechanical', 'Engineering'], ['B.Com', 'Commerce'],
+        ['B.Sc Physics', 'Science'], ['BBA', 'Management'], ['B.Pharm', 'Health Sciences']
+    ];
+    const cities = ['Delhi', 'Mumbai', 'Kolkata', 'Bengaluru', 'Jodhpur', 'Patna', 'Guwahati', 'Dehradun'];
+    const used = {};
+    for (const [, code, number] of allocations) used[`${code}-${number}`] = (used[`${code}-${number}`] || 0) + 1;
+    const blocksFor = { male: ['BBA', 'BBB'], female: ['GBA', 'GBB'] };
+
+    for (let i = 0; i < 30; i++) {
+        const gender = i % 2 === 0 ? 'male' : 'female';
+        const first = (gender === 'male' ? male : female)[Math.floor(i / 2)];
+        const sid = `STU2024${String(17 + i).padStart(3, '0')}`;
+        const [course, dept] = courses[i % courses.length];
+        const year = (i % 4) + 1;
+        students.push([sid, first, surnames[i % surnames.length], gender, course, dept, year, `${2007 - year}-0${(i % 9) + 1}-1${i % 9}`, cities[i % cities.length]]);
+
+        const candidates = rooms.filter(([code, number]) => blocksFor[gender].includes(code) && !(code === 'BBB' && number === '301'));
+        for (let k = 0; k < candidates.length; k++) {
+            const [code, number, , , capacity] = candidates[(i * 5 + k) % candidates.length];
+            const key = `${code}-${number}`;
+            if ((used[key] || 0) < capacity) {
+                used[key] = (used[key] || 0) + 1;
+                allocations.push([sid, code, number, used[key]]);
+                break;
+            }
+        }
+        if (i % 6 === 0) owing.add(sid);
+    }
+})();
+
 // Open applications: [student, preferred block, type, status, remarks, special requirements]
 const openApplications = [
     ['STU2024003', 'BBB', 'double', 'pending', null, 'First-year student, would like a room near the mess'],
@@ -181,8 +220,7 @@ async function seed({ log = console.log } = {}) {
                  VALUES (?, ?, 'any', ?::date - 20, ?, 12, 'approved', ?, ?, ?::date - 5) RETURNING id`,
                 [studentIds[sid], blockIds[code], ay.allocated, ay.start, `Allotted ${code} room ${number}`, adminId, ay.allocated]
             );
-            // The last two students still owe this month's rent.
-            const owesThisMonth = sid === 'STU2024011' || sid === 'STU2024006';
+            const owesThisMonth = owing.has(sid);
             const [alloc] = await db.query(
                 `INSERT INTO room_allocations (student_id, room_id, application_id, bed_number, allocation_date, start_date,
                     end_date, rent_amount, security_deposit, payment_status, allocated_by)
@@ -204,7 +242,7 @@ async function seed({ log = console.log } = {}) {
                      VALUES (?, ?, ?, 'rent', ?, ?, ?, ?, ?, ?, ?)`,
                     [alloc.id, studentIds[sid], rent, sid === 'STU2024012' ? 'bank_transfer' : 'online',
                         pending ? null : `TXN${sid.slice(-3)}${month.replace('-', '')}`, `${month}-05`, month,
-                        pending ? 'pending' : 'completed', `Rent for ${month}`, pending ? null : adminId]
+                        pending ? 'pending' : 'completed', `Rent for ${new Date(`${month}-01T00:00:00Z`).toLocaleString('en-IN', { month: 'long', year: 'numeric', timeZone: 'UTC' })}`, pending ? null : adminId]
                 );
             }
         }

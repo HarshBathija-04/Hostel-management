@@ -59,8 +59,8 @@ describe('seeded demo data', () => {
         const res = await asAdmin('get', '/api/admin/dashboard');
         expect(res.status).toBe(200);
         const { statistics, occupancyByBlock } = res.body.data;
-        expect(statistics.totalStudents).toBe(16);
-        expect(statistics.activeAllocations).toBe(9);
+        expect(statistics.totalStudents).toBe(46);
+        expect(statistics.activeAllocations).toBe(39);
         expect(statistics.openComplaints).toBeGreaterThan(0);
         expect(typeof occupancyByBlock[0].occupancy_rate).toBe('number');
     });
@@ -109,7 +109,7 @@ describe('application to allocation flow', () => {
 
         const rooms = await asAdmin('get', '/api/admin/rooms?limit=100');
         const boysRoom = rooms.body.data.rooms.find((r) => r.gender_type === 'male' && r.available_beds > 0);
-        const girlsRoom = rooms.body.data.rooms.find((r) => r.block_code === 'GBA' && r.room_number === '201');
+        const girlsRoom = rooms.body.data.rooms.find((r) => r.gender_type === 'female' && r.available_beds > 0 && r.room_status === 'available');
 
         const wrongBlock = await asAdmin('post', '/api/admin/allocations')
             .send({ studentId: studentDbId, roomId: boysRoom.id, startDate: '2099-01-01' });
@@ -122,7 +122,7 @@ describe('application to allocation flow', () => {
 
         const room = await asAdmin('get', `/api/admin/rooms/${girlsRoom.id}`);
         expect(room.body.data.room.occupied_beds).toBe(girlsRoom.occupied_beds + 1);
-        expect(room.body.data.occupants).toHaveLength(1);
+        expect(room.body.data.occupants).toHaveLength(girlsRoom.occupied_beds + 1);
 
         const apps = await request(app).get('/api/students/applications').set('Authorization', `Bearer ${token}`);
         expect(apps.body.data.applications[0].status).toBe('approved');
@@ -166,5 +166,26 @@ describe('complaints', () => {
 
         const list = await asAdmin('get', '/api/admin/complaints?status=resolved');
         expect(list.body.data.complaints.some((c) => c.id === created.body.data.id)).toBe(true);
+    });
+});
+
+describe('demo mode', () => {
+    afterEach(() => {
+        delete process.env.DEMO_MODE;
+    });
+
+    test('protects the shared demo student from lock-out', async () => {
+        process.env.DEMO_MODE = 'true';
+        const pw = await asStudent('put', '/api/students/change-password')
+            .send({ currentPassword: 'student123', newPassword: 'NewPassw0rd' });
+        expect(pw.status).toBe(403);
+        const students = await asAdmin('get', '/api/admin/students?search=STU2024001');
+        const demoId = students.body.data.students[0].id;
+        expect((await asAdmin('delete', `/api/admin/students/${demoId}`)).status).toBe(403);
+    });
+
+    test('change-password validates the new password', async () => {
+        const res = await asStudent('put', '/api/students/change-password').send({ currentPassword: 'x', newPassword: 'short' });
+        expect(res.status).toBe(400);
     });
 });

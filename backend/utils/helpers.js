@@ -41,6 +41,9 @@ const getPaginationParams = (req) => {
     return { page, limit, offset: (page - 1) * limit };
 };
 
+// DEMO_MODE=true protects the shared demo login from being locked out by visitors.
+const isDemoAccount = (studentCode) => process.env.DEMO_MODE === 'true' && studentCode === 'STU2024001';
+
 const omit = (obj, keys) => Object.fromEntries(Object.entries(obj).filter(([key]) => !keys.includes(key)));
 
 module.exports = {
@@ -51,5 +54,6 @@ module.exports = {
     sendError,
     createPagination,
     getPaginationParams,
-    omit
+    omit,
+    isDemoAccount
 };

@@ -12,7 +12,8 @@ const {
     sendError,
     getPaginationParams,
     createPagination,
-    omit
+    omit,
+    isDemoAccount
 } = require('../utils/helpers');
 
 // =====================================================
@@ -391,12 +392,16 @@ const updateStudent = async (req, res, next) => {
 
         // Check if student exists
         const existing = await query(
-            'SELECT id FROM students WHERE id = ?',
+            'SELECT id, student_id FROM students WHERE id = ?',
             [studentId]
         );
 
         if (existing.length === 0) {
             return sendError(res, 'Student not found', 404);
+        }
+
+        if (updates.isActive === false && isDemoAccount(existing[0].student_id)) {
+            return sendError(res, 'The shared demo student cannot be deactivated', 403);
         }
 
         // Build update query
@@ -440,6 +445,14 @@ const updateStudent = async (req, res, next) => {
 const deleteStudent = async (req, res, next) => {
     try {
         const studentId = req.params.id;
+
+        const target = await query('SELECT student_id FROM students WHERE id = ?', [studentId]);
+        if (target.length === 0) {
+            return sendError(res, 'Student not found', 404);
+        }
+        if (isDemoAccount(target[0].student_id)) {
+            return sendError(res, 'The shared demo student cannot be deactivated', 403);
+        }
 
         // Check if student has active allocation
         const activeAllocation = await query(
@@ -826,7 +839,7 @@ const getAllApplications = async (req, res, next) => {
         const applications = await query(
             `SELECT ra.*, 
                     s.student_id, CONCAT(s.first_name, ' ', s.last_name) as student_name,
-                    s.email, s.course, s.year_of_study, s.gender,
+                    s.email, s.course, s.year_of_study, s.gender, ra.student_id AS student_db_id,
                     hb.block_name as preferred_block,
                     a.username as processed_by_name
              FROM room_applications ra

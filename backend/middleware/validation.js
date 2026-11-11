@@ -80,7 +80,7 @@ const studentRegistrationValidation = [
         .isIn(['male', 'female', 'other']).withMessage('Gender must be male, female, or other'),
     
     body('phone')
-        .optional()
+        .optional({ values: 'falsy' })
         .trim()
         .matches(/^[0-9]{10,15}$/).withMessage('Phone number must be 10-15 digits'),
     
@@ -109,7 +109,7 @@ const studentRegistrationValidation = [
         .isLength({ max: 100 }).withMessage('Emergency contact name must not exceed 100 characters'),
     
     body('emergencyContactPhone')
-        .optional()
+        .optional({ values: 'falsy' })
         .trim()
         .matches(/^[0-9]{10,15}$/).withMessage('Emergency contact phone must be 10-15 digits'),
     
@@ -141,7 +141,7 @@ const studentUpdateValidation = [
         .matches(/^[A-Za-z\s]+$/).withMessage('Last name must contain only letters'),
     
     body('phone')
-        .optional()
+        .optional({ values: 'falsy' })
         .trim()
         .matches(/^[0-9]{10,15}$/).withMessage('Phone number must be 10-15 digits'),
     
@@ -156,7 +156,7 @@ const studentUpdateValidation = [
         .isLength({ max: 100 }).withMessage('Emergency contact name must not exceed 100 characters'),
     
     body('emergencyContactPhone')
-        .optional()
+        .optional({ values: 'falsy' })
         .trim()
         .matches(/^[0-9]{10,15}$/).withMessage('Emergency contact phone must be 10-15 digits'),
     
@@ -201,7 +201,7 @@ const adminCreateValidation = [
         .isLength({ min: 2, max: 100 }).withMessage('Full name must be 2-100 characters'),
     
     body('phone')
-        .optional()
+        .optional({ values: 'falsy' })
         .trim()
         .matches(/^[0-9]{10,15}$/).withMessage('Phone number must be 10-15 digits'),
     

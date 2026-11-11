@@ -12,7 +12,8 @@ const {
     sendError,
     getPaginationParams,
     createPagination,
-    omit
+    omit,
+    isDemoAccount
 } = require('../utils/helpers');
 
 // =====================================================
@@ -277,12 +278,16 @@ const changePassword = async (req, res, next) => {
 
         // Get current password hash
         const students = await query(
-            'SELECT password FROM students WHERE id = ?',
+            'SELECT password, student_id FROM students WHERE id = ?',
             [studentId]
         );
 
         if (students.length === 0) {
             return sendError(res, 'Student not found', 404);
+        }
+
+        if (isDemoAccount(students[0].student_id)) {
+            return sendError(res, 'Password changes are disabled for the shared demo account', 403);
         }
 
         // Verify current password
