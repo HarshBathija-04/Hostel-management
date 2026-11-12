@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
 const { verifyToken, verifyAdmin, verifySuperAdmin } = require('../middleware/auth');
+const { isDemoAdmin, sendError } = require('../utils/helpers');
 const {
     adminLoginValidation,
     adminCreateValidation,
@@ -23,6 +24,10 @@ const {
 router.post('/login', adminLoginValidation, adminController.login);
 // Everything below requires an admin token.
 router.use(verifyToken, verifyAdmin);
+router.use((req, res, next) =>
+    isDemoAdmin(req.user) && (req.method === 'DELETE' || req.path === '/create')
+        ? sendError(res, 'The shared demo account cannot delete data or create admins', 403)
+        : next());
 router.get('/profile', adminController.getProfile);
 router.get('/dashboard', adminController.getDashboard);
 router.post('/create', verifySuperAdmin, adminCreateValidation, adminController.createAdmin);

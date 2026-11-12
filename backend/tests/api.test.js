@@ -184,6 +184,18 @@ describe('demo mode', () => {
         expect((await asAdmin('delete', `/api/admin/students/${demoId}`)).status).toBe(403);
     });
 
+    test('the public demo warden cannot delete data or create admins', async () => {
+        process.env.DEMO_MODE = 'true';
+        const blocks = await asAdmin('get', '/api/admin/blocks');
+        expect(blocks.status).toBe(200);
+        expect((await asAdmin('delete', '/api/admin/blocks/1')).status).toBe(403);
+        expect((await asAdmin('delete', '/api/admin/rooms/1')).status).toBe(403);
+        const admin = await asAdmin('post', '/api/admin/create')
+            .send({ username: 'intruder', password: 'Passw0rd!x', email: 'x@hostel.edu', fullName: 'X' });
+        expect(admin.status).toBe(403);
+        expect((await asAdmin('get', '/api/admin/blocks')).body).toEqual(blocks.body);
+    });
+
     test('change-password validates the new password', async () => {
         const res = await asStudent('put', '/api/students/change-password').send({ currentPassword: 'x', newPassword: 'short' });
         expect(res.status).toBe(400);

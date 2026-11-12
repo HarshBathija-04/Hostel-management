@@ -13,7 +13,7 @@
 | Role | Login | Password |
 | --- | --- | --- |
 | Student | `STU2024001` | `student123` |
-| Warden (super admin) | `superadmin` | `admin123` |
+| Warden (super admin, delete disabled in demo) | `superadmin` | `admin123` |
 
 Both logins are pre-filled on the sign-in screens. The demo runs on free tiers, so the first request after a quiet spell can take up to a minute while the API wakes up; the UI shows a banner while it does.
 
@@ -61,7 +61,7 @@ flowchart LR
 - **Schema-per-app on a shared database.** Several portfolio apps share one free Render Postgres. This app keeps every table in its own schema (`DB_SCHEMA`), the pool pins `search_path` to it, and the schema name is validated before use.
 - **Migrations on boot.** Plain SQL migrations are applied once each under a Postgres advisory lock, followed by an idempotent demo seed, because Render's free plan has no pre-deploy hook. CI checks that both run twice without changes.
 - **Real-database tests.** Jest + Supertest drive the API against a throwaway Postgres schema rebuilt for every run: auth, role checks, the apply-allot-terminate flow and capacity rules.
-- **Defence in depth.** helmet, a strict CORS allow-list, rate limits (20 auth attempts per 15 minutes), express-validator on every write, bcrypt hashing, and Postgres errors mapped to clean 4xx responses. `DEMO_MODE` stops visitors locking out the shared demo account.
+- **Defence in depth.** helmet, a strict CORS allow-list, rate limits (20 auth attempts per 15 minutes), express-validator on every write, bcrypt hashing, and Postgres errors mapped to clean 4xx responses. `DEMO_MODE` stops visitors locking out the shared demo accounts or deleting demo data.
 - **Cold-start aware UI.** The fetch client flags requests slower than 4 seconds and shows a "waking up the server" banner instead of a silent spinner.
 
 ## Tech stack
@@ -112,7 +112,7 @@ Open http://localhost:5212 and sign in with a demo account. Other scripts: `npm 
 | `BCRYPT_ROUNDS` | no | `10` | Password hashing cost |
 | `RATE_LIMIT_MAX_REQUESTS` | no | `300` | API requests per IP per 15 minutes |
 | `DB_POOL_MAX` | no | `10` | Maximum pooled connections |
-| `DEMO_MODE` | no | `false` | `true` blocks password changes and deactivation for the demo student |
+| `DEMO_MODE` | no | `false` | `true` keeps the public demo safe: the demo student cannot change password or be deactivated, and the demo warden cannot delete data or create admins |
 
 **Frontend** (`frontend/.env` locally, Vercel in production)
 

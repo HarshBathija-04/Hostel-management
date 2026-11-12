@@ -61,6 +61,8 @@ const buildSet = (body, fields) => {
 
 // DEMO_MODE=true protects the shared demo login from being locked out by visitors.
 const isDemoAccount = (studentCode) => process.env.DEMO_MODE === 'true' && studentCode === 'STU2024001';
+// The seeded warden is public, so in DEMO_MODE it may edit but never delete data or create admins.
+const isDemoAdmin = (user) => process.env.DEMO_MODE === 'true' && user.email === 'superadmin@hostel.edu';
 
 // Express 4 does not forward rejected promises; route every async handler's errors to next().
 const catchErrors = (handlers) => Object.fromEntries(
@@ -79,6 +81,7 @@ module.exports = {
     getPaginationParams,
     omit,
     isDemoAccount,
+    isDemoAdmin,
     buildWhere,
     buildSet,
     catchErrors
